@@ -49,6 +49,8 @@ button:focus-visible,.tile:focus-visible{outline:2px solid var(--gold);outline-o
 .toggle button{background:none;border:0;color:var(--dim);font-size:11px;padding:4px 9px;border-radius:999px;cursor:pointer}
 .toggle button.on{background:var(--gold);color:#17140c;font-weight:600}
 button.ghost{background:rgba(21,23,31,.9);border:1px solid var(--line);color:var(--ink);padding:4px 10px;border-radius:999px;cursor:pointer;font-size:11px}
+button.ghost[disabled]{opacity:.32;cursor:not-allowed}
+#undo:not([disabled]){border-color:var(--gold);color:var(--gold)}
 .stamp{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid var(--line);color:var(--faint);background:rgba(12,14,20,.8);width:max-content}
 .stamp.pass{border-color:var(--sage);color:var(--sage)}
 .stamp.fail{border-color:var(--rust);color:var(--rust)}
@@ -140,7 +142,7 @@ button.ghost{background:rgba(21,23,31,.9);border:1px solid var(--line);color:var
 <div id="stage" aria-label="The 3D house, with every part around it">
 	<svg id="dial" aria-hidden="true"></svg>
 	<div id="housebox"></div>
-	<p id="msg">Drag a part onto the house. <b>Drag the house to spin it, scroll to zoom.</b> Gold ring = ready now.</p>
+	<p id="msg">Drag a part onto the house. <b>Drag the house to spin it, scroll to zoom.</b> Gold ring = ready now &#183; Reverse takes the last step back.</p>
 
 	<div class="corner" id="tl">
 		<div class="brand">HOUSE <em>Block 3D</em><small>Treasure Coast CBS home · crew edition</small></div>
@@ -153,7 +155,7 @@ button.ghost{background:rgba(21,23,31,.9);border:1px solid var(--line);color:var
 	<div class="corner" id="tr"><div id="stamps"></div></div>
 	<div class="corner" id="bl">
 		<span class="score" id="score">Gates 0/10 · Leaks 0 · Failed gates 0</span>
-		<div style="display:flex;gap:6px"><button class="ghost" id="reset">Start over</button><button class="ghost" id="showchart">The table</button></div>
+		<div style="display:flex;gap:6px"><button class="ghost" id="undo" disabled title="Take the last step back (Ctrl+Z)">&#8630; Reverse</button><button class="ghost" id="reset">Start over</button><button class="ghost" id="showchart">The table</button></div>
 	</div>
 	<div class="corner" id="br"><span class="foot">Gates in the order of the Indian River County / Vero Beach <a href="https://indianriver.gov/Document%20Center/Services/Planning-and-Development/Building%20Division/2019_BRCOM_Scheduling.pdf" target="_blank" rel="noopener">residential inspection schedule</a> and FBC 8th Ed. A training model, not a permit.</span></div>
 </div>
@@ -574,6 +576,7 @@ function refreshTiles(){
 		t.classList.toggle('ready', ready(p));
 		t.classList.toggle('sel', state.sel===p.id);
 	});
+	const u = document.getElementById('undo'); if(u) u.disabled = past.length === 0;
 	drawDial();
 }
 window.addEventListener('resize', layout);
@@ -623,6 +626,35 @@ function coveredBy(p){ if(p.altOf && state.placed.has(p.altOf)) return byId[p.al
 function ready(p){ return !state.placed.has(p.id) && !state.burned.has(p.id) && !coveredBy(p) && p.needs.every(met); }
 function missing(p){ return p.needs.filter(n=>!met(n)).map(n=>n.split('|').map(id=>byId[id].short).join(' or ')); }
 
+/* ---- REVERSE: one snapshot per step that changes the house ---- */
+const past = [];
+function snap(){ return {placed:new Set(state.placed), passed:new Set(state.passed), burned:new Set(state.burned),
+	failedRows:new Set(state.failedRows), leaks:state.leaks, fails:state.fails}; }
+function restore(s){ state.placed=new Set(s.placed); state.passed=new Set(s.passed); state.burned=new Set(s.burned);
+	state.failedRows=new Set(s.failedRows); state.leaks=s.leaks; state.fails=s.fails; }
+function rebuildStamps(){
+	const s = document.getElementById('stamps'); s.innerHTML='';
+	PARTS.filter(p=>p.gate).sort((a,b)=>a.row-b.row).forEach(p=>{
+		if(state.passed.has(p.row)) stampGate(p,'pass');
+		else if(state.failedRows.has(p.row)) stampGate(p,'fail');
+	});
+}
+function reverse(){
+	const e = past.pop(); if(!e) return;
+	const p = byId[e.id];
+	const failed = p.gate && state.failedRows.has(p.row);
+	restore(e.s);
+	document.getElementById('done').classList.remove('on');
+	closePeek(); state.sel = null;
+	rebuildStamps(); redraw(); refreshTiles(); score();
+	if(p.gate) say('', failed
+		? `<b>Reversed.</b> The <b>${ROWS[p.row-1].label}</b> inspection is un-called and the tile is back. On a real job you do not get this button.`
+		: `<b>Reversed.</b> The <b>${ROWS[p.row-1].label}</b> inspection is un-called. In the field a stamp is a stamp.`);
+	else say('', `<b>Reversed.</b> <b>${p.short}</b> is back on the table. On a real job that step is a demo crew and a change order.`);
+}
+document.getElementById('undo').addEventListener('click', reverse);
+window.addEventListener('keydown', ev=>{ if((ev.ctrlKey||ev.metaKey) && ev.key.toLowerCase()==='z'){ ev.preventDefault(); reverse(); } });
+
 function attempt(id, e){
 	const p = byId[id];
 	if(state.placed.has(id)){ openPeek(id,{note:'Already on the house.'}); return; }
@@ -635,6 +667,7 @@ function attempt(id, e){
 		say('leak', `<b>Leak.</b> ${why}`); openPeek(id, {leak:why});
 		score(); return;
 	}
+	past.push({s:snap(), id});                 // from here on the house changes — remember how it looked
 	if(p.gate){
 		const burn = (p.failsIf||[]).filter(t=>state.placed.has(t));
 		if(burn.length){
@@ -677,9 +710,9 @@ function finish(){
 	document.getElementById('done').classList.add('on');
 }
 function resetAll(){
-	state.placed.clear(); state.passed.clear(); state.burned.clear(); state.failedRows.clear(); state.leaks=0; state.fails=0; state.sel=null;
+	state.placed.clear(); state.passed.clear(); state.burned.clear(); state.failedRows.clear(); state.leaks=0; state.fails=0; state.sel=null; past.length=0;
 	document.getElementById('stamps').innerHTML=''; document.getElementById('done').classList.remove('on'); closePeek();
-	say('', 'Drag a part onto the house. <b>Drag the house to spin it, scroll to zoom.</b> Gold ring = ready now.');
+	say('', 'Drag a part onto the house. <b>Drag the house to spin it, scroll to zoom.</b> Gold ring = ready now &#183; Reverse takes the last step back.');
 	redraw(); refreshTiles(); score();
 }
 document.getElementById('reset').addEventListener('click', resetAll);

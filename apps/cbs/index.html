@@ -1,0 +1,1081 @@
+<title>HOUSE Block</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+	--bg:#07080c; --panel:#0c0e14; --panel2:#15171f; --line:#252836;
+	--ink:#e8e4dc; --dim:#9a9789; --faint:#6d6b62;
+	--gold:#d4a24c; --sky:#6f92b8; --sage:#7fa07a; --rust:#c46a4a;
+	--paper:#f7f4ed; --paper2:#ece8df; --pink:#161410; --hair:#5c6370;
+	--mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+	--serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+	--sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif;
+	--tw:60px; --th:52px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px}
+button{font:inherit}
+button:focus-visible,.tile:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---------- the stage = the whole screen ---------- */
+#stage{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,#1a2a3e 0%,#0b1119 46%,#07080c 80%);overflow:hidden;touch-action:none}
+#stage.over #housebox{box-shadow:0 0 0 3px var(--gold),0 0 60px rgba(212,162,76,.25)}
+#dial{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#dial .arc{fill:none;stroke:#2a2f3d;stroke-width:1.5}
+#dial .arc.pass{stroke:var(--sage);stroke-width:2.5}
+#dial .arc.fail{stroke:var(--rust);stroke-width:2.5}
+#dial .arc.open{stroke:var(--gold);stroke-width:2;stroke-dasharray:4 5}
+#dial .rl{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;fill:#6d6b62}
+#dial .rl.pass{fill:var(--sage)}#dial .rl.fail{fill:var(--rust)}#dial .rl.open{fill:var(--gold)}
+
+#housebox{position:absolute;border-radius:14px;transition:box-shadow .15s}
+#housebox svg{width:100%;height:100%;display:block}
+#msg{position:absolute;left:50%;transform:translateX(-50%);text-align:center;max-width:46ch;font-size:12px;line-height:1.4;color:var(--dim);pointer-events:none;text-wrap:balance}
+#msg b{color:var(--ink)}
+#msg.leak b{color:var(--sky)}#msg.pass b{color:var(--sage)}#msg.fail b{color:var(--rust)}
+
+/* corners */
+.corner{position:absolute;z-index:3;display:flex;flex-direction:column;gap:6px}
+#tl{left:14px;top:12px}
+#tr{right:14px;top:12px;align-items:flex-end}
+#bl{left:14px;bottom:12px}
+#br{right:14px;bottom:12px;align-items:flex-end}
+.brand{font-family:var(--serif);font-size:18px;line-height:1}
+.brand em{color:var(--gold);font-style:italic}
+.brand small{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-top:4px}
+.toggle{display:inline-flex;background:rgba(21,23,31,.9);border:1px solid var(--line);border-radius:999px;padding:2px;width:max-content}
+.toggle button{background:none;border:0;color:var(--dim);font-size:11px;padding:4px 9px;border-radius:999px;cursor:pointer}
+.toggle button.on{background:var(--gold);color:#17140c;font-weight:600}
+button.ghost{background:rgba(21,23,31,.9);border:1px solid var(--line);color:var(--ink);padding:4px 10px;border-radius:999px;cursor:pointer;font-size:11px}
+.stamp{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid var(--line);color:var(--faint);background:rgba(12,14,20,.8);width:max-content}
+.stamp.pass{border-color:var(--sage);color:var(--sage)}
+.stamp.fail{border-color:var(--rust);color:var(--rust)}
+#stamps{display:flex;flex-wrap:wrap;gap:3px;justify-content:flex-end;max-width:180px}
+.stamp.pass,.stamp.fail{padding:2px 3px}
+.score{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.score b{color:var(--ink);font-weight:600}
+.foot{font-size:9.5px;color:var(--faint);max-width:30ch;line-height:1.35}
+.foot a{color:var(--gold)}
+
+/* ---------- the ring of tiles ---------- */
+.tile{position:absolute;z-index:4;width:var(--tw);height:var(--th);margin:0;display:flex;flex-direction:column;justify-content:space-between;border-radius:6px;padding:3px 4px;border:1px solid var(--hair);color:var(--pink);text-align:left;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;transition:transform .15s,box-shadow .15s,opacity .2s;transform:translate(-50%,-50%)}
+.tile:hover{transform:translate(-50%,-50%) scale(1.06);box-shadow:0 8px 18px rgba(0,0,0,.5);z-index:6}
+.tile.ready{box-shadow:0 0 0 2px var(--gold),0 0 18px rgba(212,162,76,.45)}
+.tile.sel{box-shadow:0 0 0 2px #fff,0 8px 18px rgba(0,0,0,.5)}
+.tile .z{font-size:8px;font-variant-numeric:tabular-nums;opacity:.7;line-height:1}
+.tile .sym{font-family:var(--serif);font-size:19px;line-height:.9;letter-spacing:-.01em}
+.tile .pic{display:block;height:24px;width:28px;margin:-1px 0 0}
+.grid .tile .pic{height:30px;width:34px}
+@media (max-width:760px){.tile .pic{height:19px;width:22px}}
+#peek .pic{display:block;width:44px;height:38px;margin-bottom:2px}
+.tile .nm{font-size:7px;line-height:1.1;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .lk{position:absolute;top:3px;right:4px;font-size:7px;opacity:.75}
+.tile.spent{background:var(--paper2)!important;color:#8a8578;border-color:#c9c3b5;cursor:default}
+.tile.spent::after{content:"✓";position:absolute;right:4px;bottom:3px;font-size:11px;color:#7fa07a}
+.tile.covered{opacity:.4;cursor:not-allowed}
+.tile.burned::after{content:"✗";position:absolute;right:4px;bottom:3px;font-size:11px;color:#c46a4a;font-weight:700}
+.tile.burned{border-color:#c46a4a}
+.tile.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translate(-50%,-50%)}20%{transform:translate(calc(-50% - 5px),-50%)}40%{transform:translate(calc(-50% + 5px),-50%)}60%{transform:translate(calc(-50% - 4px),-50%)}80%{transform:translate(calc(-50% + 4px),-50%)}}
+#ghost{position:fixed;z-index:50;pointer-events:none;width:var(--tw);height:var(--th);display:none;opacity:.95}
+#ghost .tile{position:static;transform:rotate(-4deg);box-shadow:0 18px 40px rgba(0,0,0,.6)}
+
+/* ---------- the peek (the card, anchored to the tile) ---------- */
+#peek{position:fixed;z-index:40;width:19rem;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;display:none;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px 12px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+#peek.on{display:block}
+#peek .bar{height:3px;width:30px;border-radius:99px;background:var(--gold);margin-bottom:8px}
+#peek .kick{font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin:0 0 2px}
+#peek .sym{font-family:var(--serif);font-size:30px;line-height:1;margin:0;color:var(--gold)}
+#peek h2{font-family:var(--serif);font-size:17px;font-weight:400;margin:3px 0 1px;line-height:1.2}
+#peek .meta{font-size:10px;color:var(--faint);margin:0 0 8px}
+#peek .law{font-size:13.5px;line-height:1.4;margin:0 0 9px;color:var(--ink)}
+.blk{border-left:3px solid var(--sage);background:#10151c;padding:7px 9px;margin-bottom:7px}
+.blk h3{margin:0 0 3px;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:var(--sage)}
+.blk p{margin:0;font-size:11.5px;color:var(--dim);line-height:1.45}
+.blk a{color:var(--gold)}
+.blk.fail{border-left-color:var(--rust)}.blk.fail h3{color:var(--rust)}
+.blk.spec{border-left-color:var(--sky)}.blk.spec h3{color:var(--sky)}
+.blk.hot{border-left-color:var(--gold);background:#14110c}.blk.hot h3{color:var(--gold)}.blk.hot p{color:var(--ink)}
+.grade{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:99px;border:1px solid var(--line);color:var(--dim);margin:1px 0 6px}
+.grade b{font-family:var(--sans);font-size:11px}
+.grade.g1{border-color:var(--sage);color:var(--sage)}.grade.g2{border-color:var(--sky);color:var(--sky)}.grade.g3,.grade.g5{border-color:var(--rust);color:var(--rust)}
+#peek .src{font-size:10px;color:var(--faint);margin:0 0 10px;line-height:1.4}
+.eat{background:var(--gold);border:0;color:#17140c;font-weight:700;padding:7px 13px;border-radius:999px;cursor:pointer;font-size:12px}
+#peek .close{position:absolute;right:8px;top:6px;background:none;border:0;color:var(--faint);font-size:16px;cursor:pointer;padding:2px 6px}
+
+/* ---------- the chart overlay (the table, read-only) ---------- */
+#chart{position:fixed;inset:0;z-index:30;display:none;background:rgba(7,8,12,.8);align-items:center;justify-content:center;padding:20px}
+#chart.on{display:flex}
+.paper{position:relative;background:var(--paper);border-radius:10px;padding:14px 14px 12px;color:var(--pink);max-width:min(66rem,100%);max-height:100%;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.7)}
+.paper h2{margin:0 0 10px;text-align:center;font-size:10px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:#6d6b62}
+.paper .close{position:absolute;right:8px;top:6px;background:none;border:0;color:#6d6b62;font-size:18px;cursor:pointer}
+.grid{display:grid;gap:2px}
+.fam{padding:0 2px 6px;text-align:center}
+.fam b{display:block;font-size:11px;font-weight:600}
+.fam span{display:block;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#6d6b62}
+.rowlab{display:flex;align-items:center;justify-content:flex-end;padding-right:5px}
+.rowlab span{writing-mode:vertical-rl;transform:rotate(180deg);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#6d6b62;white-space:nowrap}
+.grid .tile{position:static;transform:none;width:auto;height:auto;min-height:3.4rem;cursor:default}
+.grid .tile:hover{transform:none;box-shadow:none}
+.grid .tile .nm{white-space:normal;font-size:8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 4px 0;font-size:9.5px;color:#6d6b62}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-1px;margin-right:4px;border:1px solid var(--hair)}
+
+/* ---------- done ---------- */
+#done{display:none;position:fixed;inset:0;z-index:45;background:rgba(7,8,12,.88);align-items:center;justify-content:center;text-align:center;padding:24px}
+#done.on{display:flex}
+#done h2{font-family:var(--serif);font-weight:400;font-size:36px;margin:0 0 6px;color:#fff;text-wrap:balance}
+#done .stars{font-size:26px;color:var(--gold);letter-spacing:.2em;margin-bottom:8px}
+#done p{color:var(--dim);max-width:44ch;margin:0 auto 14px;line-height:1.5}
+#done p b{color:var(--ink)}
+.drip{animation:drip 1.1s ease-in forwards}
+@keyframes drip{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(60px)}}
+.bandlab{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;fill:#9a9789}
+@media (max-width:760px){:root{--tw:44px;--th:40px}#dial .rl{display:none}.tile .sym{font-size:15px}.tile .nm{display:none}.brand small,.foot{display:none}.toggle button{font-size:10px;padding:3px 7px}#stamps{display:none}}
+@media (prefers-reduced-motion:reduce){.tile,.drip,.tile.shake{animation:none;transition:none}}
+</style>
+
+<div id="stage" aria-label="The house, with every part around it">
+	<svg id="dial" aria-hidden="true"></svg>
+	<div id="housebox">
+		<svg viewBox="0 0 800 560" id="scene" role="img" aria-label="A concrete-block house being built in layers">
+			<defs>
+				<linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1119"/><stop offset="1" stop-color="#16243a"/></linearGradient>
+				<linearGradient id="soilg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2d22"/><stop offset="1" stop-color="#17120e"/></linearGradient>
+				<filter id="glow"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#f0d9a0" flood-opacity=".9"/></filter>
+				<pattern id="blockpat" width="32" height="16" patternUnits="userSpaceOnUse"><rect width="32" height="16" fill="#8d8b86"/><path d="M0,0 H32 M0,8 H32 M16,0 V8 M0,8 V16 M32,8 V16" stroke="#6b6963" stroke-width="1" fill="none"/></pattern>
+				<pattern id="stuccopat" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d9cdb6"/><circle cx="2" cy="3" r=".7" fill="#c9bca3"/><circle cx="5" cy="1" r=".6" fill="#c9bca3"/></pattern>
+				<pattern id="shinglepat" width="24" height="10" patternUnits="userSpaceOnUse"><rect width="24" height="10" fill="#4d4846"/><path d="M0,10 H24 M12,0 V10" stroke="#2f2b2a" stroke-width="1"/></pattern>
+				<pattern id="tilepat" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="#d8d0c2"/><path d="M0,0 H20 V20" stroke="#bfb6a6" stroke-width="1" fill="none"/></pattern>
+			</defs>
+			<rect x="0" y="0" width="800" height="440" fill="url(#skyg)"/>
+			<rect x="0" y="440" width="800" height="120" fill="url(#soilg)"/>
+			<g id="SEC"></g>
+			<g id="ELEV" style="display:none"></g>
+			<g id="leaks"></g>
+			<g id="bands"></g>
+		</svg>
+	</div>
+	<p id="msg">Drag a part onto the house. Hover a tile to read it. <b>Gold ring = ready now.</b></p>
+
+	<div class="corner" id="tl">
+		<div class="brand">HOUSE <em>Block</em><small>Treasure Coast CBS home · crew edition</small></div>
+		<div class="toggle" role="tablist" aria-label="View">
+			<button data-view="cutaway" class="on">Cutaway</button>
+			<button data-view="street">Street</button>
+			<button data-view="inspector">Inspector</button>
+		</div>
+	</div>
+	<div class="corner" id="tr"><div id="stamps"></div></div>
+	<div class="corner" id="bl">
+		<span class="score" id="score">Gates 0/10 · Leaks 0 · Failed gates 0</span>
+		<div style="display:flex;gap:6px"><button class="ghost" id="reset">Start over</button><button class="ghost" id="showchart">The table</button></div>
+	</div>
+	<div class="corner" id="br"><span class="foot">Gates in the order of the Indian River County / Vero Beach <a href="https://indianriver.gov/Document%20Center/Services/Planning-and-Development/Building%20Division/2019_BRCOM_Scheduling.pdf" target="_blank" rel="noopener">residential inspection schedule</a> and FBC 8th Ed. A training model, not a permit.</span></div>
+</div>
+
+<div id="peek" role="dialog" aria-label="Part card"><button class="close" id="peekclose" aria-label="Close">×</button><div id="peekbody"></div></div>
+<div id="chart" role="dialog" aria-label="Periodic Table of House Parts"><div class="paper"><button class="close" id="chartclose" aria-label="Close">×</button><h2>Periodic Table of House Parts — the data behind the ring</h2><div class="grid" id="table"></div><div class="legend" id="legend"></div></div></div>
+<div id="done"><div><div class="stars" id="d-stars"></div><h2 id="d-title"></h2><p id="d-body"></p><button class="eat" id="again">Build another one</button></div></div>
+<div id="ghost"></div>
+
+<script>
+/* ============================================================
+   DATA — the table. Hue lives on the family. Order lives on
+   `needs`. If you write  if(part.id==='block')  the engine is dead.
+   ============================================================ */
+const FAMS = [
+	{id:'pp', sym:'Pp', label:'Paper', q:'Is it legal, and who signed?', hue:'#efe6cf', hueTo:'#d7c79b', block:1},
+	{id:'gd', sym:'Gd', label:'Ground', q:'What is it standing on?', hue:'#cdb497', hueTo:'#8f6f4b', block:2},
+	{id:'cn', sym:'Cn', label:'Concrete', q:'What carries the load?', hue:'#c9c6c0', hueTo:'#8a8781', block:2},
+	{id:'fr', sym:'Fr', label:'Frame', q:'What is the wind holding onto?', hue:'#e6bf8f', hueTo:'#c48f57', block:2},
+	{id:'rf', sym:'Rf', label:'Roof', q:'What keeps the rain out?', hue:'#9db3c6', hueTo:'#5f7e9a', block:2},
+	{id:'pi', sym:'Pi', label:'Pipe', q:'Where does water come in and go out?', hue:'#d9dee4', hueTo:'#94a0ad', block:3},
+	{id:'wi', sym:'Wi', label:'Wire', q:'Where does the power go?', hue:'#f0d98a', hueTo:'#c9a83a', block:3},
+	{id:'ai', sym:'Ai', label:'Air', q:'What cools it, and where does the water drip?', hue:'#b9dcd2', hueTo:'#6fb8a6', block:3},
+	{id:'wm', sym:'Wm', label:'Warm', q:'What keeps the heat out?', hue:'#f2c4c4', hueTo:'#d48585', block:4},
+	{id:'cv', sym:'Cv', label:'Cover', q:'What does the owner see?', hue:'#e2c9b8', hueTo:'#bd9273', block:4},
+];
+const ROWS = [
+	{n:1, code:'301', label:'Underground', sees:'Every pipe under the slab, open, capped, and holding a test.'},
+	{n:2, code:'503', label:'Slab', sees:'Steel on chairs, poly, forms — and the survey and density report already on file.'},
+	{n:3, code:'119', label:'Tie beam', sees:'Steel in the forms, steel in the cells, and a strap wherever a truss will land.'},
+	{n:4, code:'123 · 126 · 118', label:'Sheathing & straps', sees:'Every truss strapped, braced, and nailed down — before anything covers it.'},
+	{n:5, code:'603', label:'Dry-in', sees:'A roof that survives tonight’s rain with nothing on top.'},
+	{n:6, code:'203 · 311 · 403', label:'Roughs', sees:'Pipe, wire and duct in the open walls — and an insulated suction line.'},
+	{n:7, code:'124', label:'Framing', sees:'The layout matches the plans. Furring, blocking, holes and notches within limits.'},
+	{n:8, code:'510', label:'Insulation', sees:'The R-value on the energy form, in the wall, before the drywall.'},
+	{n:9, code:'135', label:'Drywall', sees:'Screws at the spacing, bare, before tape.'},
+	{n:10, code:'999', label:'Final', sees:'Every trade final, the blower door, the certificates — then the CO.'},
+];
+const GRADES = {
+	'1':['✓','Robust','In the county schedule or the code table.'],
+	'2':['~','Range','Real, but the number is on your plans, not in a book. Confirm.'],
+	'3':['⚠','Contested','Builders argue about it. Both shown.'],
+	'4':['◈','Model','Simplified for the sim.'],
+	'5':['✗','Cartoon','The common lie. It looked right until the gate.'],
+};
+const SRC_S = 'Indian River County / Vero Beach residential inspection schedule (BRCOM)';
+const SRC_C = 'Indian River County BRCOM Required Inspections checklist';
+const ROOF_URL = '../../../ROOF/apps/shingle/index.html';
+const PARTS = [
+	{id:'pm', z:1, sym:'Pm', icon:'permit', name:'Pull the permit', short:'Pull the permit', fam:'pp', row:1, needs:[],
+		law:'No permit, no inspections. No inspections, no house — only a very expensive shed.',
+		spec:'Building permit with sealed plans, truss package, energy form (R405) and a site plan. Notice of Commencement recorded. Sub-contractor affidavits on file. The inspector checks for plans, permit, NOC and affidavits at the first visit.',
+		fail:'Work started without a permit is a stop-work order, a double fee, and a lender who stops paying draws.',
+		grade:'1', src:SRC_C+' — first item: “check for plans, permit, NOC and sub contractor affidavits.”', layer:'permit'},
+
+	/* ---- row 1: before the underground plumbing inspection ---- */
+	{id:'fp', z:2, sym:'Fp', name:'Layout, forms and footings', short:'Forms & footings', fam:'gd', row:1, needs:['pm'],
+		law:'The surveyor decides where the house is. The footing decides whether it stays.',
+		spec:'Surveyor sets the corners. Pad filled and compacted in lifts; the density (compaction) report goes to the county. Formboards set to the plan; the formboard survey is submitted. Footing trench or thickened edge dug and steel placed per the foundation plan (typ. 2 #5 continuous).',
+		fail:'The county will not let you schedule the slab inspection until the formboard survey and the density report are submitted, reviewed and approved. No paper, no slab.',
+		grade:'1', src:SRC_S+': “Formboards, Stem Wall Surveys, Density (compaction) reports be submitted, reviewed, and approved before a slab inspection is allowed.”', layer:'footing'},
+	{id:'up', z:3, sym:'Up', name:'Underground plumbing', short:'Pipes under slab', fam:'pi', row:1, needs:['fp'],
+		law:'Everything under the slab is buried forever. The inspector sees it once.',
+		spec:'Drain-waste-vent under the slab, bedded, sloped ¼ in. per ft, stub-ups at every fixture, capped. Sewer or septic tie-in stubbed out. Water test held during the inspection.',
+		fail:'A pipe with no slope, or a joint that weeps under the test, is a fail. A pipe you poured over without the inspection is a jackhammer.',
+		grade:'1', src:SRC_S+' priority 1 — 301 Plumbing Underground Rough. Test per FBC Plumbing 312.', layer:'upipe'},
+	{id:'i1', icon:'inspector', z:4, sym:'I1', name:'Underground plumbing inspection', short:'Underground insp.', fam:'pp', row:1, gate:1, needs:['up'],
+		law:'Nothing is buried until someone signs for it.',
+		spec:'301 — Plumbing Underground Rough. Pipes exposed in the trench, test on. “Check for sanitary facilities” on site.',
+		fail:'Backfilled before he came? Dig it up.',
+		grade:'1', src:SRC_S, layer:'gate1', lit:['upipe']},
+
+	/* ---- row 2: before the slab inspection ---- */
+	{id:'tv', z:5, sym:'Tv', name:'Termite treatment and vapor barrier', short:'Termite & poly', fam:'gd', row:2, needs:['i1'],
+		law:'Florida has two things under every slab: water vapor and termites. Both get a barrier.',
+		spec:'Soil treated by a licensed pest-control company; certificate of treatment goes in the permit file. Then 6-mil polyethylene vapor retarder over the whole pad, lapped 6 in., taped at every pipe.',
+		fail:'Poly torn around the stub-ups, or no termite certificate in the file at final. Both are a fail, one is a fail eight years later.',
+		grade:'1', src:'FBC Residential R318 (termite protection) and R506.2.3 (vapor retarder).', layer:'poly'},
+	{id:'st', z:6, sym:'St', name:'Slab steel', short:'Slab steel', fam:'cn', row:2, needs:['tv'],
+		law:'Steel in the middle of the slab. Steel on the ground is gravel with extra steps.',
+		spec:'Welded wire mesh or rebar per the plan, on chairs so it sits mid-slab. Footing steel tied, corner bars lapped. Slab min 4 in. thick, thickened edge per the foundation plan. Anchor dowels for the vertical steel set at the marked cells.',
+		fail:'Mesh lying on the poly, no chairs. He can see it from the truck.',
+		grade:'2', src:'FBC Residential R506.1, R403; steel sizes from the sealed foundation plan.', layer:'slabsteel'},
+	{id:'i2', icon:'inspector', z:7, sym:'I2', name:'Slab inspection', short:'Slab insp.', fam:'pp', row:2, gate:2, needs:['st'],
+		law:'Concrete is the one thing you cannot un-pour.',
+		spec:'503 — Slabs. Forms, steel, poly, termite, stub-ups. The county will not book it until the formboard survey and the density report are approved.',
+		fail:'Truck ordered for 7 a.m., inspection at 9. That is a very expensive standing charge.',
+		grade:'1', src:SRC_S+' priority 2.', layer:'gate2', lit:['footing','poly','slabsteel']},
+
+	/* ---- row 3: before the tie-beam inspection ---- */
+	{id:'po', z:8, sym:'Po', name:'Pour the slab', short:'Pour the slab', fam:'cn', row:3, needs:['i2'],
+		law:'Pour after the stamp. Never before.',
+		spec:'3,000 psi min (per plan), placed, screeded and finished. Cure. Keep the stub-ups capped.',
+		fail:'A cold joint from a truck that was late, or a slab poured before the inspection. One is ugly, the other is a tear-out.',
+		grade:'1', src:'FBC Residential R402.2; mix per the plan.', layer:'slab'},
+	{id:'bk', z:9, sym:'Bk', name:'Lay the block, lintels and sills', short:'Block & lintels', fam:'cn', row:3, needs:['po'],
+		law:'The wall is not the block. It is the block plus the steel in the cells.',
+		spec:'8×8×16 CMU (ASTM C90), running bond, Type M or S mortar. Precast lintels over every opening per the lintel schedule, precast sills under windows. Vertical rebar dropped into the marked cells at corners, each side of openings and at the spacing on the plan; cells cleaned out for the grout.',
+		fail:'A cell that is supposed to be filled, filled with mortar droppings instead. He looks with a light.',
+		grade:'1', src:'FBC Residential R606; lintel schedule on the plans.', layer:'block'},
+	{id:'tb', z:10, sym:'Tb', name:'Tie beam forms, steel and straps', short:'Tie beam steel', fam:'cn', row:3, needs:['bk'],
+		law:'The beam is the belt around the top of the house. The straps are the belt loops.',
+		spec:'Beam forms (or U-block) set on top of the wall. Continuous bars top and bottom per the plan (typ. 2 #5 each), corner bars, stirrups. Embedded hurricane straps set at every truss location per the truss layout — before the pour.',
+		fail:'Straps forgotten before the pour means a drill-and-epoxy retrofit at every truss, and an engineer’s letter.',
+		grade:'2', src:'FBC Residential R606.11 / R802.11; strap type and spacing from the truss uplift sheet.', layer:'beam'},
+	{id:'i3', icon:'inspector', z:11, sym:'I3', name:'Tie beam inspection', short:'Tie beam insp.', fam:'pp', row:3, gate:3, needs:['tb'],
+		law:'He looks in the forms and down the cells. After the pour, nobody can.',
+		spec:'119 — Tie Beam. Beam steel, filled-cell steel, dowel laps, strap placement against the truss layout.',
+		fail:'A #5 bar that stops short of the corner. A strap at 24 in. where the truss lands at 22.',
+		grade:'1', src:SRC_S+' priority 3.', layer:'gate3', lit:['beam','block']},
+
+	/* ---- row 4: before the sheathing / strapping / bracing inspection ---- */
+	{id:'pb', z:12, sym:'Pb', name:'Pour the beam and fill the cells', short:'Pour beam & cells', fam:'cn', row:4, needs:['i3'],
+		law:'One pour makes the block a wall.',
+		spec:'Grout the vertical cells and pour the tie beam, consolidated, straps left standing.',
+		fail:'A cell that was never grouted looks exactly like one that was. Until the wind.',
+		grade:'1', src:'FBC Residential R606.', layer:'beampour'},
+	{id:'tr', z:13, sym:'Tr', name:'Set and brace the trusses', short:'Set trusses', fam:'fr', row:4, needs:['pb'],
+		law:'A truss is only strong standing up. Braced, it stays that way.',
+		spec:'Engineered trusses set per the sealed layout. Temporary bracing as you set, permanent bracing per the truss engineer’s sheet (BCSI). Gable end braced. No field cuts without the engineer.',
+		fail:'A truss notched for a duct. Twenty trusses standing on two braces on a windy afternoon.',
+		grade:'1', src:SRC_S+' priority 4 — 118 Truss Bracing. Truss package on the permit.', layer:'trusses'},
+	{id:'sp', z:14, sym:'Sp', name:'Wrap the straps over every truss', short:'Straps', fam:'fr', row:4, needs:['tr'], altOf:'tn',
+		law:'The strap is the only thing between the roof and the sky.',
+		spec:'The embedded strap comes out of the beam and wraps the truss; every hole filled with the nail the strap approval calls for. Uplift per truss on the sealed truss sheet — often well over 1,000 lb at the eave.',
+		fail:'Half the holes nailed. A strap bent twice. A strap that misses the truss by two inches and was bent over to reach.',
+		grade:'1', src:SRC_S+' priority 4 — 126 Strapping. Strap and nail from the connector’s Florida Product Approval.', layer:'straps'},
+	{id:'tn', z:14, sym:'Sp', name:'Toe-nail the trusses', short:'Toe-nail', fam:'fr', row:4, needs:['tr'], trap:true, altOf:'sp',
+		law:'Three nails at an angle hold a truss in place. They do not hold it down.',
+		spec:'Three 16d toe-nails per truss, the way a house up north is done. The straps are in the beam — nobody wrapped them. From the street, and from inside, it looks finished.',
+		fail:'The strapping inspection finds straps lying flat. Every truss gets wrapped before anything goes on top.',
+		grade:'5', src:'Not a Florida detail. That is the point.', layer:'toenail'},
+	{id:'sh', z:15, sym:'Sh', name:'Roof sheathing, nailed', short:'Roof sheathing', fam:'fr', row:4, needs:['sp|tn'],
+		law:'The deck is what the hurricane pulls on first.',
+		spec:'Plywood or OSB per the plan, H-clips, 8d ring-shank nails at the spacing on the nailing schedule — 6 in. o.c. edges and field is the Treasure Coast norm. “Check reviewed plan for fastening and sheathing size.”',
+		fail:'A nail line that misses the truss. Staples. 12 in. in the field.',
+		grade:'2', src:SRC_S+' priority 4 — 123 Roof Sheathing; '+SRC_C+'. Spacing from your plans.', layer:'sheath'},
+	{id:'i4', icon:'inspector', z:16, sym:'I4', name:'Sheathing, strapping and bracing inspection', short:'Sheathing insp.', fam:'pp', row:4, gate:4, needs:['sh'], failsIf:['tn'],
+		law:'Nothing covers the deck until someone signs for the nails and the straps.',
+		spec:'Three inspections the county lists together: 123 Roof Sheathing, 126 Strapping, 118 Truss Bracing. He walks the attic and the roof.',
+		fail:'Dry-in on before this? Tear it back. Straps not wrapped? Wrap them, then call again.',
+		grade:'1', src:SRC_S+' priority 4.', layer:'gate4', lit:['straps','toenail','trusses','sheath']},
+
+	/* ---- row 5: before the roof dry-in inspection ---- */
+	{id:'dr', z:17, sym:'Dr', link:true, name:'Dry in the roof', short:'Dry-in', fam:'rf', row:5, needs:['i4'],
+		law:'The shingles are the hat. This is the raincoat.',
+		spec:'Drip edge, then the underlayment system on the whole deck, then the flashing. This tile is the whole ROOF Shingle game folded into one step — <a href="'+ROOF_URL+'" target="_blank" rel="noopener">play ROOF Shingle</a> for the five roofing gates inside it.',
+		fail:'Exposed deck anywhere. Underlayment left in the sun past its limit.',
+		grade:'1', src:SRC_S+' priority 5 — 603 Roof Dry-In. Detail in ROOF Shingle.', layer:'dryin'},
+	{id:'i5', icon:'inspector', z:18, sym:'I5', name:'Roof dry-in inspection', short:'Dry-in insp.', fam:'pp', row:5, gate:5, needs:['dr'],
+		law:'The house must survive rain tonight with nothing else on it.',
+		spec:'603 — Roof Dry-In. Underlayment, drip edge, flashing at every hole and joint.',
+		fail:'Shingles already on? He cannot see the flashing. Fail.',
+		grade:'1', src:SRC_S+' priority 5.', layer:'gate5', lit:['dryin']},
+
+	/* ---- row 6: before the three roughs ---- */
+	{id:'pt', z:19, sym:'Pt', name:'Interior partitions', short:'Partitions', fam:'fr', row:6, needs:['pb'],
+		law:'The block is the shell. The partitions are the rooms.',
+		spec:'Interior walls framed — PT bottom plate anchored to the slab, studs per the plan, double top plate, headers. Straight and plumb, because the tile guy will find out if they are not.',
+		fail:'A bearing partition that is not on the plan. A bottom plate that is not pressure-treated.',
+		grade:'1', src:'FBC Residential R602; R317 (PT plate on concrete).', layer:'partition'},
+	{id:'wd', z:19, sym:'Wd', name:'Bucks, impact windows and doors', short:'Windows & doors', fam:'cv', row:6, needs:['pb'],
+		law:'Every opening is a hole in the wind wall. The buck is what the window screws into.',
+		spec:'PT bucks anchored to the block per the window approval. Impact-rated windows and doors per the Florida Product Approval and the design pressure on the plans, fastened per the approval’s schedule. With impact glazing there are no shutters to inspect (193).',
+		fail:'A window fastened with the screws from the box, not the approval. Missing shims at the fasteners. Buck not treated.',
+		grade:'1', src:'FBC Residential R301.2.1.2 (wind-borne debris); window Florida Product Approval; county “Window and Door Buck” inspection (anytime).', layer:'windows'},
+	{id:'to', z:20, sym:'To', name:'Plumbing top-out', short:'Top-out', fam:'pi', row:6, needs:['pt','i5'],
+		law:'Every fixture needs a drain, a vent, and two waters. The vent goes out the roof.',
+		spec:'Supply and DWV in the walls, vents through the roof, tub and shower set, water heater location. Water test on the DWV, pressure test on the supply, held during the inspection.',
+		fail:'“Vertical vents through roof per code” is on the checklist. A vent that dead-ends in the attic is not a vent.',
+		grade:'1', src:SRC_S+' priority 7 — 311 Plumbing Rough (Top Out); '+SRC_C+'.', layer:'topout'},
+	{id:'er', z:20, sym:'Er', name:'Electrical rough', short:'Electrical rough', fam:'wi', row:6, needs:['pt','i5'],
+		law:'Boxes, home runs, the panel can. Nothing hot.',
+		spec:'Boxes set to the plan, cable run and stapled, home runs to the panel location, nail plates where the cable is within 1¼ in. of the stud face. AFCI/GFCI circuits laid out for the devices they will feed.',
+		fail:'Cable run through the truss bottom chord with no plate. A box with too many conductors. Both are a fail.',
+		grade:'1', src:SRC_S+' priority 7 — 203 Electric Rough. NEC 2020 via FBC.', layer:'wire'},
+	{id:'ar', z:20, sym:'Ar', name:'A/C rough, suction line insulated', short:'A/C rough', fam:'ai', row:6, needs:['pt','i5'], altOf:'ab',
+		law:'The cold pipe sweats. Insulation is what stops the ceiling from raining.',
+		spec:'Ducts hung and sealed, returns, the line set through the wall with the entire suction line insulated end to end, condensate drain with a trap to daylight, secondary pan or float switch.',
+		fail:'The county note says it plainly: “Entire suction line must be insulated.”',
+		grade:'1', src:SRC_S+' priority 7 — 403 A/C Rough; '+SRC_C+'.', layer:'duct'},
+	{id:'ab', z:20, sym:'Ar', name:'A/C rough, line set bare', short:'A/C rough', fam:'ai', row:6, needs:['pt','i5'], trap:true, altOf:'ar',
+		law:'Copper looks finished. Wet copper looks the same.',
+		spec:'Ducts hung, drain in. The line set run bare through the wall — the tech will wrap the outside piece later, and the inside piece is behind drywall anyway. From the street, the same house.',
+		fail:'The A/C rough fails on one line of the county checklist. Pull it back, wrap it, call again.',
+		grade:'5', src:SRC_C+': “Entire suction line must be insulated.”', layer:'ductbare'},
+	{id:'i6', icon:'inspector', z:21, sym:'I6', name:'Rough-in inspections', short:'Roughs insp.', fam:'pp', row:6, gate:6, needs:['to','er','ar|ab'], failsIf:['ab'],
+		law:'Three trades, one open house. He sees all of it once.',
+		spec:'203 Electric Rough, 311 Plumbing Top-Out, 403 A/C Rough. Tests holding. Then the framing inspection can be called.',
+		fail:'Any one of the three fails and none of the walls close.',
+		grade:'1', src:SRC_S+' priority 7.', layer:'gate6', lit:['topout','wire','duct','ductbare','partition']},
+
+	/* ---- row 7: before the framing inspection ---- */
+	{id:'fb', z:22, sym:'Fb', name:'Furring, fire blocking, draft stops', short:'Furring & blocking', fam:'fr', row:7, needs:['i6'],
+		law:'The framing inspection is the last time anyone sees the bones.',
+		spec:'PT furring strips on the inside of the block for the insulation and drywall. Fire blocking at the ceiling line and every 10 ft in concealed spaces, draft stops where the plan calls for them. Holes and notches from the trades checked against the limits — plates added where they cut too much.',
+		fail:'“Check structure layout with plans.” A wall that moved a foot since the sealed set. A stud with nothing left after the plumber.',
+		grade:'1', src:SRC_S+' priority 8 — 124 Framing; '+SRC_C+'. FBC Residential R302.11, R602.6.', layer:'furring'},
+	{id:'i7', icon:'inspector', z:23, sym:'I7', name:'Framing inspection', short:'Framing insp.', fam:'pp', row:7, gate:7, needs:['fb'],
+		law:'Everything the trades did to the bones, checked against the plan.',
+		spec:'124 — Framing. After the roughs, before the insulation: layout, furring, blocking, headers, notches, nail plates, straps you can still see.',
+		fail:'Called before the roughs? He comes back, and you pay for the trip.',
+		grade:'1', src:SRC_S+' priority 8.', layer:'gate7', lit:['partition','furring','windows']},
+
+	/* ---- row 8: before the insulation inspection ---- */
+	{id:'wn', z:24, sym:'Wn', name:'Wall insulation', short:'Wall insulation', fam:'wm', row:8, needs:['i7'],
+		law:'The R-value on the energy form is a promise. This is where you keep it.',
+		spec:'Foil-faced board between the furring on the block walls, batts in any frame wall, per the R405 energy calculation on the permit. Sealed at the top plate. Attic insulation comes later, after the ceiling drywall — that is a separate inspection (511).',
+		fail:'A different product than the energy form. Gaps at the outlets. Compressed batts.',
+		grade:'2', src:SRC_S+' priority 9 — 510 Wall Insulation. R-values from the Form R405 on your permit.', layer:'wallins'},
+	{id:'i8', icon:'inspector', z:25, sym:'I8', name:'Insulation inspection', short:'Insulation insp.', fam:'pp', row:8, gate:8, needs:['wn'],
+		law:'Insulation is invisible in a week. He sees it today.',
+		spec:'510 — Wall Insulation. Product and R-value against the energy form, coverage, air sealing.',
+		fail:'Drywall hung before he came? He asks you to open a wall. Any wall.',
+		grade:'1', src:SRC_S+' priority 9.', layer:'gate8', lit:['wallins']},
+
+	/* ---- row 9: before the drywall inspection ---- */
+	{id:'dw', z:26, sym:'Dw', name:'Hang the drywall', short:'Drywall', fam:'cv', row:9, needs:['i8'],
+		law:'Screws he can count. Tape hides them. So the inspection is before the tape.',
+		spec:'½ in. board on walls and ceilings (⅝ in. Type X where the plan says — garage side, per R302). Screws per the spacing on the plan or GA-216: typically 12 in. o.c. on ceilings, 16 in. on walls, into every framing member.',
+		fail:'Screws that miss the furring. Board taped before the inspection.',
+		grade:'2', src:SRC_S+' priority 10 — 135 Drywall. Fastener schedule on your plans.', layer:'drywall'},
+	{id:'i9', icon:'inspector', z:27, sym:'I9', name:'Drywall inspection', short:'Drywall insp.', fam:'pp', row:9, gate:9, needs:['dw'],
+		law:'The last look before the house becomes a picture.',
+		spec:'135 — Drywall. Screw spacing, board type where it matters. 193 Storm Shutters is on the same line — with impact glazing, that line is “n/a”.',
+		fail:'Ceiling screws at 24 in. He counts.',
+		grade:'1', src:SRC_S+' priority 10.', layer:'gate9', lit:['drywall']},
+
+	/* ---- row 10: before the final ---- */
+	{id:'at', z:28, sym:'At', name:'Attic insulation', short:'Attic insulation', fam:'wm', row:10, needs:['i9'],
+		law:'Blown in after the ceiling is up, or it is blown onto the floor.',
+		spec:'Blown or batt attic insulation to the depth on the R405 form, rulers every 300 sq ft, baffles at the eaves so the soffit can breathe. Insulation certificate posted at the panel.',
+		fail:'Depth short of the ruler. Soffit vents buried.',
+		grade:'2', src:SRC_C+' — 511 Attic Insulation. FBC Energy R401.3 (certificate).', layer:'attic'},
+	{id:'fx', z:28, sym:'Fx', name:'Fixtures, water heater, sewer tie-in', short:'Fixtures', fam:'pi', row:10, needs:['i9'],
+		law:'Now the pipes get things on the end of them.',
+		spec:'Toilets, sinks, tub trim, water heater with its pan and TPR line, hose bibs. Sewer or septic connection made and inspected (303 / 313). Everything runs, nothing drips.',
+		fail:'A TPR line that ends in the attic. A water heater with no pan over living space.',
+		grade:'1', src:SRC_C+' — 313/303 Septic/Sewer connection; plumbing final.', layer:'fixtures'},
+	{id:'dv', z:28, sym:'Dv', name:'Panel, devices and power', short:'Power', fam:'wi', row:10, needs:['i9'],
+		law:'Power is a permission, not a step. The county tells the utility.',
+		spec:'Panel made up and labeled, devices and fixtures in, AFCI/GFCI where required, smoke and CO alarms interconnected. 211 Temporary-Permanent Power releases the meter.',
+		fail:'A panel with no directory. A smoke alarm missing from one bedroom. No power release, no A/C start-up, no final.',
+		grade:'1', src:SRC_C+' — 211 Temporary Permanent Power; NEC 2020 via FBC.', layer:'panel'},
+	{id:'eq', z:28, sym:'Eq', name:'Set the condenser and air handler', short:'A/C set', fam:'ai', row:10, needs:['i9','dv'],
+		law:'The condenser stands on its own pad, strapped, above the flood line.',
+		spec:'Condenser on a pad, tied down for wind, disconnect within sight, line set charged and tested. Air handler set, drain trapped and running, filter in. Start-up and balance.',
+		fail:'A condenser sitting on the dirt. A drain that ends under the house.',
+		grade:'1', src:'FBC Mechanical / Residential M1401; tie-down per the unit’s approval.', layer:'cond'},
+	{id:'rc', z:28, sym:'Rc', link:true, name:'Roof covering', short:'Shingles on', fam:'rf', row:10, needs:['i5'],
+		law:'The hat goes on last, over a raincoat that already passed.',
+		spec:'Shingles, tile or metal per the product approval — starter, field, in-progress inspection, ridge, cap, sealant. 609 Roof Covering is its own inspection. The whole thing is in <a href="'+ROOF_URL+'" target="_blank" rel="noopener">ROOF Shingle</a>.',
+		fail:'Four nails. Cap before the vent. See ROOF.',
+		grade:'1', src:SRC_C+' — 609 Roof Covering. Detail in ROOF Shingle.', layer:'shingles'},
+	{id:'fn', z:29, sym:'Fn', name:'Stucco, paint, floors, cabinets', short:'Finishes', fam:'cv', row:10, needs:['dw','wd'],
+		law:'Everything the buyer touches. Nothing the inspector cares about — until the final.',
+		spec:'Stucco on the block (lath where it crosses frame — 136 Metal Lath is its own inspection), paint, tile, cabinets, doors and trim, hardware.',
+		fail:'A stucco crack at the lintel is cosmetic. A stucco crack at the tie beam is a phone call to the engineer.',
+		grade:'4', src:SRC_C+' — 136 Metal Lath. The rest is the contract, not the code.', layer:'finish'},
+	{id:'gr', z:29, sym:'Gr', name:'Final grade, driveway, address', short:'Grade & driveway', fam:'gd', row:10, needs:['i9'],
+		law:'Water runs away from the house. Or it runs into it.',
+		spec:'Finish grade sloped away from the foundation (6 in. in the first 10 ft), sod, driveway and walk poured, address numbers visible from the street, silt fence out.',
+		fail:'Grade higher than the slab. No numbers on the house. Both are on the final.',
+		grade:'1', src:'FBC Residential R401.3; R319 (address). County driveway inspection (anytime).', layer:'grade'},
+	{id:'fi', icon:'inspector', z:30, sym:'Fn', name:'Final inspection', short:'Final insp.', fam:'pp', row:10, gate:10, needs:['at','fx','dv','eq','rc','fn','gr'],
+		law:'Every trade final, the blower door, the certificates — then the CO.',
+		spec:'999 — Building Final: electrical, plumbing, mechanical and building finals, the blower-door test (≤ 7 ACH50), termite and insulation certificates, energy certificate at the panel, address, grade, drainage. Then the Certificate of Occupancy.',
+		fail:'A blower door at 8. A missing termite certificate. A lender who will not close without the CO.',
+		grade:'1', src:SRC_S+' priority 11; FBC Energy R402.4.1.2 (air leakage test).', layer:'gate10', lit:['attic','fixtures','panel','cond','shingles','finish','grade']},
+];
+const byId = Object.fromEntries(PARTS.map(p=>[p.id,p]));
+const famById = Object.fromEntries(FAMS.map(f=>[f.id,f]));
+const fill = (h,h2)=>`linear-gradient(155deg, color-mix(in srgb, ${h} 58%, #ffffff) 0%, ${h} 46%, ${h2} 100%)`;
+const NG = ROWS.length;
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {placed:new Set(), leaks:0, fails:0, passed:new Set(), burned:new Set(), failedRows:new Set(), view:'cutaway', sel:null};
+const stage = document.getElementById('stage');
+const SORTED = PARTS.slice().sort((a,b)=>a.z-b.z || (a.trap?1:0)-(b.trap?1:0));
+const ORDER = SORTED.filter(p=>p.fam!=='pp');        // the ring: what goes on the house
+const PAPER = SORTED.filter(p=>p.fam==='pp');        // the shelf: permit + the ten inspections
+const N = ORDER.length;
+// clockwise from 12 o'clock, spaced by arc length so the flat top of a tall screen is not crowded
+let ANGS = [];
+const ANG = i => ANGS[i];
+function spaceRing(rx, ry){
+	const M = 720, len = [0]; let prev = [rx*Math.cos(-Math.PI/2), ry*Math.sin(-Math.PI/2)];
+	for(let k=1;k<=M;k++){ const a = -Math.PI/2 + 2*Math.PI*k/M; const p = [rx*Math.cos(a), ry*Math.sin(a)]; len.push(len[k-1] + Math.hypot(p[0]-prev[0], p[1]-prev[1])); prev = p; }
+	const total = len[M];
+	ANGS = ORDER.map((_,i)=>{ const s = total*(i+0.5)/N; let k=0; while(k<M && len[k+1]<s) k++; const f=(s-len[k])/(len[k+1]-len[k]); return -Math.PI/2 + 2*Math.PI*(k+f)/M; });
+}
+const MID = (i,j) => { let a = ANGS[i], b = ANGS[j]; if(b < a) b += 2*Math.PI; return (a+b)/2; };
+let geo = {cx:0,cy:0,rx:0,ry:0};
+
+function el(tag, cls){ const n=document.createElement(tag); if(cls) n.className=cls; return n; }
+const svgNS='http://www.w3.org/2000/svg';
+function mk(tag, attrs){ const n=document.createElementNS(svgNS,tag); for(const k in attrs) n.setAttribute(k, attrs[k]); return n; }
+
+/* ============================================================
+   THE RING — the table's rows become arcs, its tiles a dial
+   ============================================================ */
+function inspectorSVG(n, ink){
+	return `<svg viewBox="0 0 34 32" width="100%" height="100%" aria-hidden="true">
+		<circle cx="11" cy="7.5" r="4.2" fill="${ink}"/>
+		<path d="M3.5 29 v-9 a7.5 7.5 0 0 1 15 0 v9 z" fill="${ink}"/>
+		<path d="M16 21 L21 17" stroke="${ink}" stroke-width="2.6" stroke-linecap="round"/>
+		<circle cx="24.5" cy="14.5" r="7" fill="rgba(255,255,255,.55)" stroke="${ink}" stroke-width="2.2"/>
+		<path d="M29.5 19.5 L33 23" stroke="${ink}" stroke-width="3" stroke-linecap="round"/>
+		<text x="24.5" y="17.8" text-anchor="middle" font-family="Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif" font-size="${n>9?8.5:10}" font-weight="700" fill="${ink}">${n}</text>
+	</svg>`;
+}
+function permitSVG(ink){
+	return `<svg viewBox="0 0 32 32" width="100%" height="100%" aria-hidden="true">
+		<path d="M7 3 h13 l6 6 v20 h-19 z" fill="rgba(255,255,255,.75)" stroke="${ink}" stroke-width="1.8" stroke-linejoin="round"/>
+		<path d="M20 3 v6 h6" fill="none" stroke="${ink}" stroke-width="1.8" stroke-linejoin="round"/>
+		<path d="M10.5 13 h11 M10.5 17 h11 M10.5 21 h7" stroke="${ink}" stroke-width="1.6" stroke-linecap="round"/>
+		<circle cx="21" cy="24" r="3.2" fill="none" stroke="#b3382a" stroke-width="1.6"/>
+	</svg>`;
+}
+function symMarkup(p, ink){
+	if(p.icon==='inspector') return `<span class="pic">${inspectorSVG(p.row, ink)}</span>`;
+	if(p.icon==='permit') return `<span class="pic">${permitSVG(ink)}</span>`;
+	return `<span class="sym">${p.sym}</span>`;
+}
+function tileNode(p, ring){
+	const f = famById[p.fam];
+	const b = el('button','tile'); b.type='button'; b.dataset.id = p.id;
+	b.style.background = fill(f.hue,f.hueTo);
+	b.setAttribute('aria-label', `${p.name}. ${f.label}, ${ROWS[p.row-1].label}.`);
+	b.innerHTML = `<span class="z">${p.z}</span>${symMarkup(p,'#161410')}<span class="nm">${p.short}</span>${p.link?'<span class="lk" title="Opens ROOF Shingle">↗</span>':''}`;
+	if(ring){
+		b.addEventListener('pointerdown', startDrag);
+		b.addEventListener('pointerenter', e=>{ if(!drag && window.matchMedia('(hover:hover)').matches) openPeek(p.id, {}); });
+		b.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); attempt(p.id); } });
+	}
+	return b;
+}
+function buildRing(){
+	stage.querySelectorAll('.tile').forEach(t=>t.remove());
+	SORTED.forEach(p=>stage.appendChild(tileNode(p,true)));
+	layout();
+}
+function layout(){
+	const W = stage.clientWidth, H = stage.clientHeight;
+	const tw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tw'));
+	const th = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--th'));
+	const cx = W/2, cy = H/2;
+	const rx = W/2 - tw/2 - 12, ry = H/2 - th/2 - 12;
+	const stagger = 1;
+	geo = {cx,cy,rx,ry,tw,th,stagger};
+	spaceRing(rx, ry);
+	ORDER.forEach((p,i)=>{
+		const t = stage.querySelector(`.tile[data-id="${p.id}"]`); if(!t) return;
+		const a = ANG(i);
+		t.style.left = (cx + rx*Math.cos(a))+'px'; t.style.top = (cy + ry*Math.sin(a))+'px';
+	});
+	// house box: largest 800:560 rectangle inside the inner ellipse, minus the paper shelf above it
+	const irx = rx - tw/2 - 18, iry0 = ry - th/2 - 18 - 14;
+	const k = 800/560;
+	const fit = (iry)=>{ const b = 1/Math.sqrt((k/irx)**2 + (1/iry)**2); return [k*b, b]; };
+	// pass 1: one shelf row; measure the width the ring leaves free at shelf height; pass 2: real row count
+	let rows = 1, a, b;
+	for(let pass=0; pass<2; pass++){
+		[a,b] = fit(iry0 - rows*(th+10)/2);
+		const top = cy - b + rows*(th+10)/2 - 10;
+		const shelfY = top - th/2 - 8 - (rows-1)*(th+6);
+		const v = Math.min(0.98, Math.abs(shelfY - cy)/(ry*stagger));
+		const avail = 2*(rx*stagger*Math.sqrt(1-v*v) - tw/2 - 10);
+		const perRow = Math.max(3, Math.floor(avail/(tw+4)));
+		rows = Math.ceil(PAPER.length/perRow);
+	}
+	const box = document.getElementById('housebox');
+	box.style.width = (2*a)+'px'; box.style.height = (2*b)+'px';
+	const top = cy - b + rows*(th+10)/2 - 10;
+	box.style.left = (cx-a)+'px'; box.style.top = top+'px';
+	// the paper shelf: permit and inspections in rows just above the house, in inspection order
+	const perRow = Math.ceil(PAPER.length/rows);
+	for(let r=0; r<rows; r++){
+		const items = PAPER.slice(r*perRow, (r+1)*perRow);
+		const gap = Math.min(12, Math.max(4, (2*a - items.length*tw)/(items.length+1)));
+		items.forEach((p,i)=>{
+			const t = stage.querySelector(`.tile[data-id="${p.id}"]`); if(!t) return;
+			t.style.left = (cx + (i-(items.length-1)/2)*(tw+gap))+'px';
+			t.style.top = (top - th/2 - 8 - (rows-1-r)*(th+6))+'px';
+		});
+	}
+	const msg = document.getElementById('msg'); msg.style.top = (top + 2*b - 6)+'px';
+	drawDial();
+}
+function drawDial(){
+	const d = document.getElementById('dial'); d.innerHTML='';
+	const {cx,cy,rx,ry} = geo;
+	const pt = a => [cx+rx*Math.cos(a), cy+ry*Math.sin(a)];
+	ROWS.forEach(r=>{
+		const idx = ORDER.map((p,i)=>p.row===r.n?i:-1).filter(i=>i>=0);
+		if(!idx.length) return;
+		const i0 = idx[0], i1 = idx[idx.length-1];
+		const a0 = (i0===0 ? -Math.PI/2 : MID(i0-1, i0)) + 0.02, a1 = (i1===N-1 ? 3*Math.PI/2 : MID(i1, i1+1)) - 0.02;
+		const [x0,y0]=pt(a0), [x1,y1]=pt(a1);
+		const large = (a1-a0) > Math.PI ? 1 : 0;
+		const status = state.passed.has(r.n) ? 'pass' : state.failedRows.has(r.n) ? 'fail' : (openRow()===r.n ? 'open' : '');
+		d.appendChild(mk('path',{d:`M${x0},${y0} A${rx},${ry} 0 ${large} 1 ${x1},${y1}`, class:'arc '+status}));
+		const am = (a0+a1)/2; const lx = cx + (rx*geo.stagger-geo.tw/2-12)*Math.cos(am), ly = cy + (ry*geo.stagger-geo.th/2-12)*Math.sin(am);
+		const t = mk('text',{x:lx, y:ly, class:'rl '+status, 'text-anchor': Math.cos(am)>0.3?'end':Math.cos(am)<-0.3?'start':'middle', 'dominant-baseline':'middle'});
+		t.textContent = `${r.n} · ${r.label}`; d.appendChild(t);
+	});
+}
+function openRow(){ const g = PARTS.find(p=>p.gate && !state.placed.has(p.id)); return g ? g.row : 0; }
+function refreshTiles(){
+	document.querySelectorAll('.tile').forEach(t=>{
+		const p = byId[t.dataset.id];
+		t.classList.toggle('spent', state.placed.has(p.id));
+		t.classList.toggle('burned', state.burned.has(p.id));
+		t.classList.toggle('covered', !state.placed.has(p.id) && !!coveredBy(p));
+		t.classList.toggle('ready', ready(p));
+		t.classList.toggle('sel', state.sel===p.id);
+	});
+	drawDial();
+}
+window.addEventListener('resize', layout);
+
+/* ============================================================
+   DRAG — to the house in the middle
+   ============================================================ */
+const ghost = document.getElementById('ghost');
+const housebox = document.getElementById('housebox');
+let drag = null;
+function startDrag(e){
+	if(e.button!==undefined && e.button!==0) return;
+	const t = e.currentTarget; const id = t.dataset.id;
+	drag = {id, x0:e.clientX, y0:e.clientY, moved:false, t};
+	t.setPointerCapture(e.pointerId);
+	t.addEventListener('pointermove', moveDrag);
+	t.addEventListener('pointerup', endDrag);
+	t.addEventListener('pointercancel', endDrag);
+}
+function moveDrag(e){
+	if(!drag) return;
+	if(!drag.moved && Math.hypot(e.clientX-drag.x0, e.clientY-drag.y0) > 6){
+		drag.moved = true; closePeek();
+		ghost.innerHTML=''; const c = tileNode(byId[drag.id], false); ghost.appendChild(c); ghost.style.display='block';
+		document.body.style.cursor='grabbing';
+	}
+	if(drag.moved){
+		ghost.style.left = (e.clientX - geo.tw/2)+'px'; ghost.style.top = (e.clientY - geo.th/2)+'px';
+		stage.classList.toggle('over', overHouse(e));
+	}
+}
+function overHouse(e){ const r = housebox.getBoundingClientRect(); const pad = 40; return e.clientX>=r.left-pad && e.clientX<=r.right+pad && e.clientY>=r.top-pad && e.clientY<=r.bottom+pad; }
+function endDrag(e){
+	if(!drag) return;
+	const d = drag; drag = null;
+	d.t.removeEventListener('pointermove', moveDrag); d.t.removeEventListener('pointerup', endDrag); d.t.removeEventListener('pointercancel', endDrag);
+	ghost.style.display='none'; stage.classList.remove('over'); document.body.style.cursor='';
+	if(!d.moved){ openPeek(d.id, {}); return; }           // a tap is "look", not "go"
+	if(overHouse(e)) attempt(d.id, e); else { state.sel=null; refreshTiles(); }
+}
+
+/* ============================================================
+   ENGINE — a partial order, ten gates, two traps
+   ============================================================ */
+function met(need){ return need.split('|').some(id=>state.placed.has(id)); }
+function coveredBy(p){ if(p.altOf && state.placed.has(p.altOf)) return byId[p.altOf]; return PARTS.find(q=>q.altOf===p.id && state.placed.has(q.id)) || null; }
+function ready(p){ return !state.placed.has(p.id) && !state.burned.has(p.id) && !coveredBy(p) && p.needs.every(met); }
+function missing(p){ return p.needs.filter(n=>!met(n)).map(n=>n.split('|').map(id=>byId[id].short).join(' or ')); }
+
+function attempt(id, e){
+	const p = byId[id];
+	if(state.placed.has(id)){ openPeek(id,{note:'Already on the house.'}); return; }
+	if(state.burned.has(id)){ openPeek(id,{}); return; }
+	const cov = coveredBy(p);
+	if(cov){ openPeek(id, {note:`Already covered by “${cov.name}”. Two ways to do one job — you only do one.`}); return; }
+	if(!p.needs.every(met)){
+		state.leaks++; leak(e); shakeTile(id);
+		const why = `Not yet. The house needs: ${missing(p).join(', ')}. ${p.gate? 'You are calling the inspector to look at something that is not there.' : 'You cannot cover what the inspector has not seen.'}`;
+		say('leak', `<b>Leak.</b> ${why}`); openPeek(id, {leak:why});
+		score(); return;
+	}
+	if(p.gate){
+		const burn = (p.failsIf||[]).filter(t=>state.placed.has(t));
+		if(burn.length){
+			state.fails++; state.failedRows.add(p.row);
+			burn.forEach(t=>{ state.placed.delete(t); state.burned.add(t); });
+			redraw(); stampGate(p, 'fail');
+			const t = byId[burn[0]];
+			const why = `${ROWS[p.row-1].label} inspection: FAIL. “${t.name}” comes out. ${t.fail}`;
+			say('fail', `<b>${ROWS[p.row-1].label}: FAIL.</b> “${t.short}” comes out. ${t.fail}`);
+			openPeek(t.id, {failGate:why}); refreshTiles(); score(); return;
+		}
+		state.placed.add(id); state.passed.add(p.row); state.failedRows.delete(p.row); stampGate(p,'pass');
+		say('pass', `<b>${ROWS[p.row-1].label}: PASS.</b> ${ROWS[p.row-1].sees}`);
+		closePeek();
+		if(p.row===NG) finish();
+	} else {
+		state.placed.add(id);
+		say('', `<b>${p.short}</b> is on. ${p.law}`);
+		closePeek();
+	}
+	state.sel=null; redraw(); refreshTiles(); score();
+}
+function say(kind, html){ const m = document.getElementById('msg'); m.className = kind; m.innerHTML = html; }
+function shakeTile(id){ const t = stage.querySelector(`.tile[data-id="${id}"]`); if(!t) return; t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
+function leak(e){
+	const svg = document.getElementById('scene'); const g = document.getElementById('leaks');
+	let x=400,y=300;
+	if(e && e.clientX){ const pt = svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY; const q = pt.matrixTransform(svg.getScreenCTM().inverse()); x=Math.max(60,Math.min(740,q.x)); y=Math.max(60,Math.min(480,q.y)); }
+	for(let i=0;i<4;i++){
+		const c = mk('ellipse',{cx:x+(i-1.5)*9, cy:y+i*4, rx:3.2, ry:5, fill:'#6f92b8', opacity:.95, class:'drip'});
+		c.style.animationDelay = (i*.12)+'s'; g.appendChild(c); setTimeout(()=>c.remove(), 1500+i*120);
+	}
+}
+function stampGate(p, kind){
+	const s = document.getElementById('stamps');
+	let d = s.querySelector(`[data-row="${p.row}"]`);
+	if(!d){ d = el('div','stamp'); d.dataset.row = p.row; s.appendChild(d); }
+	d.className = 'stamp '+kind; d.title = `${ROWS[p.row-1].label} · ${kind==='pass'?'PASS':'FAIL'}`; d.setAttribute('aria-label', d.title);
+	d.innerHTML = `<span class="pic" style="display:block;width:22px;height:18px">${inspectorSVG(p.row, kind==='pass'?'#7fa07a':'#c46a4a')}</span>`;
+	[...s.children].sort((a,b)=>a.dataset.row-b.dataset.row).forEach(c=>s.appendChild(c));
+}
+function score(){ document.getElementById('score').innerHTML = `Gates <b>${state.passed.size}/${NG}</b> · Leaks <b>${state.leaks}</b> · Failed gates <b>${state.fails}</b>`; }
+function finish(){
+	const bad = state.leaks + state.fails;
+	const stars = bad===0?3: bad<=3?2:1;
+	document.getElementById('d-stars').textContent = '★'.repeat(stars)+'☆'.repeat(3-stars);
+	document.getElementById('d-title').textContent = ['CO issued. It leaked a lot first.','CO issued. A few wet spots.','CO issued. Zero leaks. Are you the superintendent?'][stars-1];
+	document.getElementById('d-body').innerHTML = `Once around the dial: ten gates, <b>${state.leaks}</b> leak${state.leaks===1?'':'s'}, <b>${state.fails}</b> failed inspection${state.fails===1?'':'s'}. From the street it looked like a house at step 29. A toe-nailed roof and a bare line set look exactly the same from there. The inspector is the only reason it is a house.`;
+	document.getElementById('done').classList.add('on');
+}
+function resetAll(){
+	state.placed.clear(); state.passed.clear(); state.burned.clear(); state.failedRows.clear(); state.leaks=0; state.fails=0; state.sel=null;
+	document.getElementById('stamps').innerHTML=''; document.getElementById('done').classList.remove('on'); closePeek();
+	say('', 'Drag a part onto the house. Hover a tile to read it. <b>Gold ring = ready now.</b>');
+	redraw(); refreshTiles(); score();
+}
+document.getElementById('reset').addEventListener('click', resetAll);
+document.getElementById('again').addEventListener('click', resetAll);
+
+/* ============================================================
+   THE PEEK — the card, anchored to the tile, opening inward
+   ============================================================ */
+const peek = document.getElementById('peek');
+let peekLeaveTimer;
+function openPeek(id, o){
+	const p = byId[id]; const f = famById[p.fam]; const r = ROWS[p.row-1];
+	state.sel = id; refreshTiles();
+	const burned = state.burned.has(id);
+	const hideTrap = p.trap && !burned;
+	const g = hideTrap ? GRADES['1'] : GRADES[p.grade]; const gk = hideTrap ? '1' : p.grade;
+	const blocks = [];
+	if(o.leak) blocks.push(`<div class="blk fail"><h3>Leak</h3><p>${o.leak}</p></div>`);
+	if(o.failGate) blocks.push(`<div class="blk fail"><h3>Failed</h3><p>${o.failGate}</p></div>`);
+	if(o.note) blocks.push(`<div class="blk"><h3>Note</h3><p>${o.note}</p></div>`);
+	blocks.push(`<div class="blk spec"><h3>${p.gate?'What he checks':'Spec'}</h3><p>${p.spec}</p></div>`);
+	blocks.push(`<div class="blk fail"><h3>Fails when</h3><p>${p.fail}</p></div>`);
+	const can = !state.placed.has(id) && !burned;
+	document.getElementById('peekbody').innerHTML = `
+		<div class="bar" style="background:${f.hueTo}"></div>
+		<p class="kick">${p.gate?'Gate':(burned?'Cartoon':'Part')} · ${f.label} · ${r.n} ${r.label}${p.gate?' · '+r.code:''}</p>
+		${p.icon ? `<span class="pic">${p.icon==='inspector'?inspectorSVG(p.row,f.hueTo):permitSVG(f.hueTo)}</span>` : `<p class="sym" style="color:${f.hueTo}">${p.sym}</p>`}
+		<h2>${p.name}</h2>
+		<p class="meta">z ${p.z}${p.altOf?` · pairs with ${byId[p.altOf].short}`:''}${state.placed.has(id)?' · on the house':''}</p>
+		<p class="law">${p.law}</p>
+		${blocks.join('')}
+		<span class="grade g${gk}"><b>${g[0]}</b>${g[1]}</span>
+		<p class="src">${hideTrap ? 'Looks like every other tile in its family. That is the point.' : g[2]+' Source: '+p.src}</p>
+		${can ? `<button class="eat" id="peekgo">${p.gate?'Call the inspection':'Put it on the house'}</button>` : ''}`;
+	const go = document.getElementById('peekgo'); if(go) go.addEventListener('click', ()=>attempt(id));
+	peek.classList.add('on');
+	const t = stage.querySelector(`.tile[data-id="${id}"]`); const tr = t.getBoundingClientRect();
+	const pw = peek.offsetWidth, ph = peek.offsetHeight;
+	const tcx = tr.left + tr.width/2, tcy = tr.top + tr.height/2;
+	const W = window.innerWidth, H = window.innerHeight;
+	let left, top;
+	if(Math.abs(tcx - W/2) > W*0.18){ left = tcx < W/2 ? tr.right + 10 : tr.left - 10 - pw; top = tcy - ph/2; }
+	else { top = tcy < H/2 ? tr.bottom + 10 : tr.top - 10 - ph; left = tcx - pw/2; }
+	left = Math.max(8, Math.min(W - pw - 8, left)); top = Math.max(8, Math.min(H - ph - 8, top));
+	if(left < 260 && top < 84) top = 84;   // keep the view toggle uncovered
+	peek.style.left = left+'px'; peek.style.top = top+'px';
+}
+function closePeek(){ peek.classList.remove('on'); }
+document.getElementById('peekclose').addEventListener('click', closePeek);
+peek.addEventListener('pointerenter', ()=>clearTimeout(peekLeaveTimer));
+stage.addEventListener('pointerover', e=>{
+	if(!window.matchMedia('(hover:hover)').matches) return;
+	if(e.target.closest('.tile') || e.target.closest('#peek')) { clearTimeout(peekLeaveTimer); return; }
+	clearTimeout(peekLeaveTimer); peekLeaveTimer = setTimeout(()=>{ if(!peek.matches(':hover')) closePeek(); }, 500);
+});
+window.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closePeek(); document.getElementById('chart').classList.remove('on'); } });
+
+/* ============================================================
+   THE CHART — the table itself, read-only, one click away
+   ============================================================ */
+function buildTable(){
+	const grid = document.getElementById('table'); grid.innerHTML = '';
+	const cols = ['2.1rem']; const slots = [];
+	FAMS.forEach((f,i)=>{ if(i>0 && FAMS[i-1].block!==f.block){ slots.push({gutter:true}); cols.push('0.55rem'); } slots.push({fam:f}); cols.push('minmax(3.6rem,1fr)'); });
+	grid.style.gridTemplateColumns = cols.join(' ');
+	grid.appendChild(el('div'));
+	slots.forEach(s=>{ if(s.gutter){ grid.appendChild(el('div')); return; } const h = el('div','fam'); h.title = s.fam.q; h.innerHTML = `<b style="color:${s.fam.hueTo}">${s.fam.sym}</b><span>${s.fam.label}</span>`; grid.appendChild(h); });
+	ROWS.forEach(r=>{
+		const seats = {}; FAMS.forEach(f=>{ seats[f.id] = PARTS.filter(p=>p.fam===f.id && p.row===r.n).sort((a,b)=>a.z-b.z || (a.trap?1:-1)); });
+		const height = Math.max(1, ...Object.values(seats).map(a=>a.length));
+		const lab = el('div','rowlab'); lab.style.gridRow = `span ${height}`; lab.title = r.sees; lab.innerHTML = `<span>${r.n} · ${r.label}</span>`; grid.appendChild(lab);
+		for(let seat=0; seat<height; seat++) slots.forEach(s=>{ if(s.gutter){ grid.appendChild(el('div')); return; } const p = seats[s.fam.id][seat]; grid.appendChild(p ? tileNode(p,false) : el('div')); });
+	});
+	document.getElementById('legend').innerHTML = FAMS.map(f=>`<span><i style="background:${fill(f.hue,f.hueTo)}"></i>${f.label} — ${f.q}</span>`).join('');
+}
+document.getElementById('showchart').addEventListener('click', ()=>{ buildTable(); refreshTiles(); document.getElementById('chart').classList.add('on'); });
+document.getElementById('chartclose').addEventListener('click', ()=>document.getElementById('chart').classList.remove('on'));
+document.getElementById('chart').addEventListener('click', e=>{ if(e.target.id==='chart') e.currentTarget.classList.remove('on'); });
+
+/* ============================================================
+   THE SCENE — a section (cutaway / inspector) and a front (street)
+   Both grow from the same `placed` set. Every node carries data-layer.
+   Section coordinates: ground y=440, slab 150..650 × 418..440,
+   block walls cut at 150..168 and 632..650, beam 190..210, ridge (400,58).
+   ============================================================ */
+const has = id => state.placed.has(id);
+const L = layer => PARTS.some(p=>p.layer===layer && state.placed.has(p.id));
+const roofY = x => x<400 ? 190 - (132/270)*(x-130) : 190 - (132/270)*(670-x);
+const rect = (x,y,w,h,f,extra={})=>mk('rect',Object.assign({x,y,width:w,height:h,fill:f},extra));
+const line = (x1,y1,x2,y2,s,w,extra={})=>mk('line',Object.assign({x1,y1,x2,y2,stroke:s,'stroke-width':w},extra));
+const path = (d,extra={})=>mk('path',Object.assign({d},extra));
+const text = (x,y,str,extra={})=>{ const t=mk('text',Object.assign({x,y},extra)); t.textContent=str; return t; };
+function grp(parent, layer){ const g = mk('g',{}); g.dataset.layer = layer; parent.appendChild(g); return g; }
+function inspectorFigure(parent, n, x, y, layer){
+	const g = grp(parent, layer);
+	g.setAttribute('transform', `translate(${x-17} ${y-34}) scale(1.05)`);
+	const fo = mk('foreignObject',{x:0,y:0,width:34,height:32}); fo.innerHTML = inspectorSVG(n, '#f2e9d2');
+	g.appendChild(mk('ellipse',{cx:14,cy:33,rx:12,ry:3,fill:'#000',opacity:.4})); g.appendChild(fo);
+}
+function permitSign(parent, layer){
+	const g = grp(parent, layer);
+	g.appendChild(line(100,440,100,392,'#8a7c72',3));
+	g.appendChild(rect(83,364,34,30,'#f6f2e8',{stroke:'#6d6b62','stroke-width':1}));
+	g.appendChild(path('M88,372 h24 M88,378 h24 M88,384 h14',{stroke:'#8a8578','stroke-width':1.4,'stroke-linecap':'round'}));
+	g.appendChild(mk('circle',{cx:109,cy:387,r:3.5,fill:'none',stroke:'#b3382a','stroke-width':1.5}));
+	g.appendChild(text(85,370,'PERMIT',{'font-size':5,'font-family':'ui-monospace,Menlo,monospace','letter-spacing':.8,fill:'#161410'}));
+}
+
+function drawSection(){
+	const S = document.getElementById('SEC'); S.innerHTML='';
+	// GROUND — trench, fill, forms, footing steel
+	if(L('footing')){
+		const g = grp(S,'footing');
+		for(let x=150;x<650;x+=14) g.appendChild(line(x,440,x+10,470,'#5a4636',1,{opacity:.7}));      // compacted fill
+		[140,595].forEach(x=>{ g.appendChild(rect(x,440,65,42,'#2a2119')); g.appendChild(rect(x,440,65,42,'none',{stroke:'#6b5a48','stroke-width':1})); });
+		[[160,472],[185,472],[615,472],[640,472]].forEach(([x,y])=>g.appendChild(mk('circle',{cx:x,cy:y,r:3,fill:'#8a3b2a'})));
+		[159,641].forEach(x=>g.appendChild(line(x,478,x,398,'#8a3b2a',2.5)));                          // dowels for the cells
+		if(!L('slab')){ g.appendChild(rect(140,414,10,27,'#8b6b4d')); g.appendChild(rect(650,414,10,27,'#8b6b4d')); }   // forms
+		[[120,440],[680,440]].forEach(([x,y])=>{ g.appendChild(line(x,y,x,y-30,'#d8d0c2',1.5)); g.appendChild(path(`M${x},${y-30} l10,4 l-10,4 z`,{fill:'#e06fa3'})); }); // survey stakes
+	}
+	if(L('upipe')){
+		const g = grp(S,'upipe');
+		g.appendChild(path('M300,458 L700,468',{stroke:'#e8e4dc','stroke-width':6,fill:'none','stroke-linecap':'round'}));
+		[300,520].forEach(x=>{ g.appendChild(line(x,458,x,410,'#e8e4dc',6)); g.appendChild(rect(x-5,406,10,5,'#c46a4a')); });
+		g.appendChild(text(705,462,'to sewer',{class:'bandlab'}));
+	}
+	if(L('poly')){
+		const g = grp(S,'poly');
+		g.appendChild(line(150,441,650,441,'#6f92b8',2.5));
+		g.appendChild(line(150,446,650,446,'#7fa07a',1.5,{'stroke-dasharray':'2 4'}));
+	}
+	if(L('slabsteel')){
+		const g = grp(S,'slabsteel');
+		g.appendChild(line(152,429,648,429,'#3b3a3a',1.6,{'stroke-dasharray':'9 4'}));
+		for(let x=170;x<640;x+=60) g.appendChild(path(`M${x-4},438 l4,-9 l4,9`,{stroke:'#3b3a3a','stroke-width':1,fill:'none'}));
+	}
+	if(L('slab')){
+		const g = grp(S,'slab');
+		g.appendChild(rect(150,418,500,22,'#b9b5ad')); g.appendChild(line(150,418,650,418,'#d8d0c2',1));
+		g.appendChild(line(152,429,648,429,'#5a5856',1.4,{'stroke-dasharray':'9 4',opacity:.6}));
+	}
+	// SHELL — block, steel, beam
+	if(L('block')){
+		const g = grp(S,'block');
+		g.appendChild(rect(168,210,464,208,'#5e5c58'));                                                 // the far wall
+		for(let y=210;y<418;y+=16) g.appendChild(line(168,y,632,y,'#4a4845',1));
+		g.appendChild(rect(470,260,100,90,'#1a1d24')); g.appendChild(rect(240,306,56,112,'#1a1d24'));   // openings
+		g.appendChild(rect(470,246,100,14,'#9d9b96')); g.appendChild(rect(240,292,56,14,'#9d9b96'));    // lintels
+		g.appendChild(rect(470,350,100,7,'#9d9b96'));                                                    // sill
+		g.appendChild(rect(150,210,18,208,'url(#blockpat)')); g.appendChild(rect(632,210,18,208,'url(#blockpat)'));
+		[159,641].forEach(x=>g.appendChild(line(x,418,x,210,'#8a3b2a',2.5)));                            // vertical steel in the cells
+	}
+	if(L('beam')){
+		const g = grp(S,'beam');
+		const poured = L('beampour');
+		[150,632].forEach(x=>{
+			g.appendChild(rect(x,190,18,20, poured?'#a8a49c':'#2a2119',{stroke:'#8b6b4d','stroke-width':poured?0:1.5}));
+			[[x+5,195],[x+13,195],[x+5,205],[x+13,205]].forEach(([cx,cy])=>g.appendChild(mk('circle',{cx,cy,r:2.4,fill:'#8a3b2a'})));
+		});
+		g.appendChild(rect(168,190,464,20, poured?'#7d7b76':'#2a2119',{stroke:'#8b6b4d','stroke-width':poured?0:1}));
+		if(!poured){ g.appendChild(rect(146,188,4,24,'#8b6b4d')); g.appendChild(rect(650,188,4,24,'#8b6b4d')); }   // forms
+		[159,641].forEach(x=>g.appendChild(rect(x-3,176,6,16,'#d4a24c')));                              // embedded straps standing
+		if(poured){ const c = grp(S,'beampour'); [159,641].forEach(x=>c.appendChild(line(x,418,x,190,'#8a8781',9,{opacity:.55}))); }  // grouted cells
+	}
+	// FRAME + ROOF
+	if(L('trusses')){
+		const g = grp(S,'trusses');
+		g.appendChild(path('M130,190 L400,58 L670,190 Z',{fill:'#14171e'}));                             // the attic, far gable
+		g.appendChild(path('M130,190 L400,58 L670,190',{stroke:'#c9a26b','stroke-width':6,fill:'none','stroke-linejoin':'round'}));
+		g.appendChild(line(130,190,670,190,'#c9a26b',6));
+		[[400,58,400,190],[265,124,200,190],[265,124,330,190],[535,124,600,190],[535,124,470,190]].forEach(([a,b,c,d])=>g.appendChild(line(a,b,c,d,'#b08a55',4)));
+		for(let x=170;x<660;x+=60) g.appendChild(line(x,150,x+40,150,'#8a6a3a',2));                     // permanent bracing
+	}
+	if(L('straps')){
+		const g = grp(S,'straps');
+		[159,641].forEach(x=>{ g.appendChild(path(`M${x-3},176 v18 h6 v-18`,{stroke:'#d4a24c','stroke-width':3,fill:'none'})); [180,186].forEach(y=>g.appendChild(mk('circle',{cx:x,cy:y,r:1.4,fill:'#161410'}))); });
+	}
+	if(L('toenail')){
+		const g = grp(S,'toenail');
+		[159,641].forEach(x=>{ g.appendChild(rect(x-3,176,6,16,'#d4a24c',{opacity:.5})); [-6,0,6].forEach(dx=>g.appendChild(line(x+dx-4,198,x+dx+2,184,'#c46a4a',1.6))); });
+	}
+	if(L('sheath')) grp(S,'sheath').appendChild(path('M122,186 L400,50 L678,186',{stroke:'#d8b57c','stroke-width':7,fill:'none','stroke-linejoin':'round'}));
+	if(L('dryin')){
+		const g = grp(S,'dryin');
+		g.appendChild(path('M120,182 L400,45 L680,182',{stroke:'#3d4a58','stroke-width':5,fill:'none','stroke-linejoin':'round'}));
+		[[118,184],[682,184]].forEach(([x,y])=>g.appendChild(line(x,y-4,x,y+8,'#e3e8ee',3)));           // drip edge
+	}
+	if(L('shingles')){
+		const g = grp(S,'shingles');
+		g.appendChild(path('M118,178 L400,39 L682,178',{stroke:'#4d4846','stroke-width':8,fill:'none','stroke-linejoin':'round'}));
+		g.appendChild(path('M118,178 L400,39 L682,178',{stroke:'#2f2b2a','stroke-width':8,fill:'none','stroke-dasharray':'2 12',opacity:.8}));
+		g.appendChild(mk('circle',{cx:400,cy:39,r:5,fill:'#3a3534'}));
+	}
+	// ROOMS — partition (seen face-on), furring, insulation
+	if(L('partition')){
+		const g = grp(S,'partition');
+		g.appendChild(rect(330,412,130,6,'#6d7d3a')); g.appendChild(rect(330,196,130,9,'#c9a26b'));
+		for(let x=333;x<=457;x+=22) g.appendChild(rect(x,205,5,207,'#c9a26b'));
+	}
+	if(L('furring')){
+		const g = grp(S,'furring');
+		g.appendChild(rect(168,210,4,208,'#6d7d3a')); g.appendChild(rect(628,210,4,208,'#6d7d3a'));
+		g.appendChild(rect(330,300,130,6,'#8a6a3a'));                                                    // fire blocking
+	}
+	if(L('wallins')){
+		const g = grp(S,'wallins');
+		[172,625].forEach(x=>{ g.appendChild(rect(x,212,3,206,'#c8ced6')); g.appendChild(line(x+1.5,212,x+1.5,418,'#ffffff',.8,{opacity:.7})); });
+	}
+	// SYSTEMS
+	if(L('topout')){
+		const g = grp(S,'topout');
+		g.appendChild(line(352,412,352,roofY(352)-14,'#e8e4dc',5));                                     // vent through the roof
+		g.appendChild(line(300,410,300,395,'#e8e4dc',5));                                                // toilet flange up
+		g.appendChild(line(340,380,455,380,'#6f92b8',2)); g.appendChild(line(340,386,455,386,'#c46a4a',2));  // supply
+	}
+	if(L('wire')){
+		const g = grp(S,'wire');
+		g.appendChild(rect(178,250,18,50,'#4b5058',{stroke:'#8d949c','stroke-width':1}));                // panel can
+		g.appendChild(path('M187,250 V198 H418 V300 M418,240 H560 V196',{stroke:'#e6c34a','stroke-width':2,fill:'none'}));
+		[[415,300],[437,380],[556,196]].forEach(([x,y])=>g.appendChild(rect(x-3,y,7,9,'#3b6fb6')));
+	}
+	if(L('duct')||L('ductbare')){
+		const bare = L('ductbare');
+		const g = grp(S, bare?'ductbare':'duct');
+		g.appendChild(rect(430,130,70,56,'#c8ced6',{stroke:'#8d949c','stroke-width':1}));                // air handler in the attic
+		g.appendChild(path('M500,160 Q560,150 600,184 M430,160 Q330,150 250,184',{stroke:'#b9c0c7','stroke-width':10,fill:'none','stroke-linecap':'round'}));
+		g.appendChild(path('M500,160 Q560,150 600,184 M430,160 Q330,150 250,184',{stroke:'#8d949c','stroke-width':10,fill:'none','stroke-dasharray':'2 6',opacity:.6}));
+		const ls = 'M480,186 V200 H612 V395 H690';
+		if(!bare) g.appendChild(path(ls,{stroke:'#1d1d1f','stroke-width':7,fill:'none'}));               // the insulation
+		g.appendChild(path(ls,{stroke:'#c47a3a','stroke-width':2.2,fill:'none'}));                       // the copper
+		g.appendChild(line(500,186,660,420,'#e8e4dc',1.2,{'stroke-dasharray':'3 3',opacity:.6}));      // condensate to daylight
+	}
+	// SKIN
+	if(L('drywall')){
+		const g = grp(S,'drywall'); const paint = L('finish') ? '#efe9dc' : '#dcd8cf';
+		g.appendChild(rect(175,205,6,213,paint)); g.appendChild(rect(619,205,6,213,paint));
+		g.appendChild(rect(181,193,438,6,paint));
+		g.appendChild(rect(330,205,130,207,paint,{opacity:.85}));
+		if(!L('finish')) for(let y=215;y<412;y+=24) g.appendChild(mk('circle',{cx:396,cy:y,r:1.2,fill:'#8a8578'}));   // screws, before tape
+	}
+	if(L('attic')){
+		const g = grp(S,'attic'); let d='M181,193';
+		for(let x=181;x<619;x+=20) d += ` q10,-22 20,0`;
+		g.appendChild(path(d+' Z',{fill:'#e8a0a8',opacity:.9}));
+	}
+	if(L('windows')){
+		const g = grp(S,'windows');
+		g.appendChild(rect(470,260,100,90,'none',{stroke:'#6d7d3a','stroke-width':5}));                 // bucks
+		g.appendChild(path('M240,306 V418 M296,306 V418 M240,306 H296',{stroke:'#6d7d3a','stroke-width':5,fill:'none'}));
+		g.appendChild(rect(474,264,92,82,'#7fa7c8',{opacity:.85})); g.appendChild(line(520,264,520,346,'#e8e4dc',2)); g.appendChild(line(474,305,566,305,'#e8e4dc',2));
+		g.appendChild(rect(244,310,48,108,'#5c4a3a')); g.appendChild(mk('circle',{cx:284,cy:366,r:2.5,fill:'#d4a24c'}));
+	}
+	if(L('fixtures')){
+		const g = grp(S,'fixtures');
+		g.appendChild(rect(288,368,24,26,'#f2f0ea')); g.appendChild(mk('ellipse',{cx:300,cy:404,rx:14,ry:9,fill:'#f2f0ea'}));       // toilet
+		g.appendChild(rect(205,338,30,80,'#d9dee4',{stroke:'#8d949c','stroke-width':1})); g.appendChild(mk('ellipse',{cx:220,cy:338,rx:15,ry:4,fill:'#e8ecf0'}));  // water heater
+		g.appendChild(path('M700,468 V440',{stroke:'#e8e4dc','stroke-width':6,fill:'none'})); g.appendChild(mk('circle',{cx:700,cy:440,r:5,fill:'#8d8b86'}));  // cleanout at the tie-in
+	}
+	if(L('panel')){
+		const g = grp(S,'panel');
+		g.appendChild(rect(178,250,18,50,'#8d949c',{stroke:'#5c6370','stroke-width':1})); g.appendChild(line(187,256,187,294,'#5c6370',2));
+		g.appendChild(rect(130,282,20,26,'#8d949c')); g.appendChild(mk('circle',{cx:140,cy:292,r:7,fill:'#f2f0ea',stroke:'#5c6370','stroke-width':1}));   // meter outside
+	}
+	if(L('cond')){
+		const g = grp(S,'cond');
+		g.appendChild(rect(676,440,58,6,'#8d8b86')); g.appendChild(rect(680,400,50,40,'#b9c0c7',{stroke:'#5c6370','stroke-width':1}));
+		g.appendChild(mk('circle',{cx:705,cy:418,r:12,fill:'none',stroke:'#5c6370','stroke-width':2}));
+		g.appendChild(rect(660,380,8,14,'#4b5058'));                                                      // disconnect
+	}
+	if(L('finish')){
+		const g = grp(S,'finish');
+		g.appendChild(rect(145,190,5,228,'url(#stuccopat)')); g.appendChild(rect(650,190,5,228,'url(#stuccopat)'));
+		g.appendChild(rect(150,412,500,6,'url(#tilepat)'));
+		g.appendChild(rect(480,362,80,50,'#7a5c3a')); g.appendChild(path('M500,362 V412 M520,362 V412 M540,362 V412',{stroke:'#5a4330','stroke-width':1}));
+		g.appendChild(rect(478,358,84,5,'#d8d0c2'));                                                      // countertop
+	}
+	if(L('grade')){
+		const g = grp(S,'grade');
+		g.appendChild(path('M0,431 L145,438 V440 H0 Z',{fill:'#8d8b86'}));                                 // driveway, sloped away
+		g.appendChild(path('M655,438 L800,431 V440 H655 Z',{fill:'#4f7d3e'}));                             // sod, sloped away
+	}
+	if(L('permit')) permitSign(S,'permit');
+	// the inspector stands where he checked
+	const spots = {gate1:[740,440], gate2:[400,418], gate3:[215,190], gate4:[400,150], gate5:[560,roofY(560)-4], gate6:[590,412], gate7:[345,412], gate8:[255,412], gate9:[455,412], gate10:[60,440]};
+	Object.keys(spots).forEach((k,i)=>{ if(L(k)) inspectorFigure(S, i+1, spots[k][0], spots[k][1], k); });
+}
+
+function drawFront(){
+	const E = document.getElementById('ELEV'); E.innerHTML='';
+	if(L('footing') && !L('slab')){
+		const g = grp(E,'footing'); g.appendChild(rect(140,412,520,6,'#8b6b4d'));
+		[[120,440],[680,440]].forEach(([x,y])=>{ g.appendChild(line(x,y,x,y-30,'#d8d0c2',1.5)); g.appendChild(path(`M${x},${y-30} l10,4 l-10,4 z`,{fill:'#e06fa3'})); });
+	}
+	if(L('slab')) grp(E,'slab').appendChild(rect(150,418,500,22,'#b9b5ad'));
+	if(L('block')){
+		const g = grp(E,'block');
+		g.appendChild(rect(150,210,500,208,'url(#blockpat)'));
+		g.appendChild(rect(470,246,100,14,'#9d9b96')); g.appendChild(rect(240,292,56,14,'#9d9b96')); g.appendChild(rect(470,350,100,7,'#9d9b96'));
+	}
+	if(L('beam')){
+		const g = grp(E,'beam'); const poured = L('beampour');
+		g.appendChild(rect(150,190,500,20, poured?'#a8a49c':'#2a2119',{stroke:'#8b6b4d','stroke-width':poured?0:1.5}));
+		if(!poured) for(let x=160;x<650;x+=24) g.appendChild(line(x,190,x,210,'#8b6b4d',1));
+	}
+	if(L('trusses')){
+		const g = grp(E,'trusses');
+		g.appendChild(path('M130,190 L670,190 L590,90 L210,90 Z',{fill:'#14171e',stroke:'#c9a26b','stroke-width':2}));
+		for(let x=154;x<660;x+=24) g.appendChild(line(x,190,210+(x-130)*380/540,90,'#8a6a3a',1.5));
+		g.appendChild(rect(130,190,540,7,'#c9a26b'));                                                     // tails / fascia
+	}
+	if(L('sheath')) grp(E,'sheath').appendChild(path('M130,190 L670,190 L590,90 L210,90 Z',{fill:'#d8b57c'}));
+	if(L('dryin')){ const g = grp(E,'dryin'); g.appendChild(path('M130,190 L670,190 L590,90 L210,90 Z',{fill:'#3d4a58'})); g.appendChild(line(130,190,670,190,'#e3e8ee',3)); }
+	if(L('shingles')){ const g = grp(E,'shingles'); g.appendChild(path('M130,190 L670,190 L590,90 L210,90 Z',{fill:'url(#shinglepat)'})); g.appendChild(line(210,90,590,90,'#2f2b2a',6)); }
+	if(L('topout')){ const g = grp(E,'topout'); g.appendChild(line(352,160,352,138,'#8d949c',5)); }
+	if(L('finish')){
+		const g = grp(E,'finish');
+		g.appendChild(rect(150,190,500,228,'url(#stuccopat)'));
+		g.appendChild(rect(130,190,540,7,'#e8e4dc'));
+	}
+	// openings are drawn after the skin so they always read as holes
+	const op = grp(E,'block');
+	if(L('block')){ op.appendChild(rect(470,260,100,90,'#1a1d24')); op.appendChild(rect(240,306,56,112,'#1a1d24')); }
+	if(L('windows')){
+		const g = grp(E,'windows');
+		g.appendChild(rect(470,260,100,90,'none',{stroke:L('finish')?'#f2f0ea':'#6d7d3a','stroke-width':5}));
+		g.appendChild(path('M240,306 V418 M296,306 V418 M240,306 H296',{stroke:L('finish')?'#f2f0ea':'#6d7d3a','stroke-width':5,fill:'none'}));
+		g.appendChild(rect(474,264,92,82,'#7fa7c8',{opacity:.9})); g.appendChild(line(520,264,520,346,'#e8e4dc',2)); g.appendChild(line(474,305,566,305,'#e8e4dc',2));
+		g.appendChild(rect(244,310,48,108,L('finish')?'#3b4a5c':'#5c4a3a')); g.appendChild(mk('circle',{cx:284,cy:366,r:2.5,fill:'#d4a24c'}));
+	}
+	if(L('panel')){ const g = grp(E,'panel'); g.appendChild(rect(175,288,20,26,'#8d949c')); g.appendChild(mk('circle',{cx:185,cy:298,r:7,fill:'#f2f0ea',stroke:'#5c6370','stroke-width':1})); }
+	if(L('cond')){
+		const g = grp(E,'cond');
+		g.appendChild(rect(676,440,58,6,'#8d8b86')); g.appendChild(rect(680,400,50,40,'#b9c0c7',{stroke:'#5c6370','stroke-width':1}));
+		g.appendChild(mk('circle',{cx:705,cy:418,r:12,fill:'none',stroke:'#5c6370','stroke-width':2}));
+		g.appendChild(path('M650,405 H680',{stroke:'#1d1d1f','stroke-width':5,fill:'none'}));            // the outside piece — wrapped on both houses
+	}
+	if(L('grade')){
+		const g = grp(E,'grade');
+		g.appendChild(rect(0,440,800,120,'#4f7d3e'));
+		g.appendChild(path('M560,440 H660 L760,560 H520 Z',{fill:'#8d8b86'}));
+		g.appendChild(path('M250,440 H290 L300,560 H240 Z',{fill:'#b9b5ad'}));
+		g.appendChild(text(330,238,'1487',{'font-family':'Iowan Old Style,Palatino Linotype,Palatino,Georgia,serif','font-size':16,fill:L('finish')?'#161410':'#e8e4dc'}));
+	}
+	if(L('permit')) permitSign(E,'permit');
+}
+
+function redraw(){ drawSection(); drawFront(); applyView(); }
+
+function applyView(){
+	const v = state.view;
+	document.getElementById('SEC').style.display = v==='street' ? 'none' : '';
+	document.getElementById('ELEV').style.display = v==='street' ? '' : 'none';
+	const bands = document.getElementById('bands'); bands.innerHTML='';
+	const litSet = new Set();
+	if(v==='inspector'){ const openGate = PARTS.find(p=>p.gate && !state.placed.has(p.id)); (openGate ? openGate.lit : []).forEach(x=>litSet.add(x)); }
+	document.querySelectorAll('#SEC [data-layer]').forEach(n=>{
+		const layer = n.dataset.layer; n.style.opacity=''; n.style.filter='';
+		if(v==='inspector'){ if(litSet.has(layer)) n.style.filter='url(#glow)'; else if(!/^gate/.test(layer)) n.style.opacity='.18'; }
+	});
+	if(v==='cutaway'){
+		[[40,120,'roof'],[40,300,'shell'],[40,500,'ground']].forEach(([x,y,t])=>bands.appendChild(text(x,y,t,{class:'bandlab'})));
+		bands.appendChild(text(760,20,'section',{class:'bandlab','text-anchor':'end'}));
+	}
+	if(v==='street') bands.appendChild(text(760,20,'from the street',{class:'bandlab','text-anchor':'end'}));
+}
+document.querySelectorAll('.toggle button').forEach(b=>b.addEventListener('click', ()=>{
+	document.querySelectorAll('.toggle button').forEach(x=>x.classList.toggle('on', x===b));
+	state.view = b.dataset.view; applyView();
+	say('', b.dataset.view==='street' ? '<b>From the street.</b> Stucco, windows, a roof. A toe-nailed roof and a bare line set look exactly like this too.'
+		: b.dataset.view==='inspector' ? '<b>Inspector view.</b> Only what the open gate checks is lit. If he cannot see it, he cannot pass it.'
+		: '<b>Cutaway.</b> The house cut down the middle — ground, shell, systems, skin — so you can see every layer you placed.');
+}));
+
+buildRing(); redraw(); score();
+</script>

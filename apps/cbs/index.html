@@ -62,13 +62,13 @@ button.ghost{background:rgba(21,23,31,.9);border:1px solid var(--line);color:var
 .tile:hover{transform:translate(-50%,-50%) scale(1.06);box-shadow:0 8px 18px rgba(0,0,0,.5);z-index:6}
 .tile.ready{box-shadow:0 0 0 2px var(--gold),0 0 18px rgba(212,162,76,.45)}
 .tile.sel{box-shadow:0 0 0 2px #fff,0 8px 18px rgba(0,0,0,.5)}
-.tile .z{font-size:8px;font-variant-numeric:tabular-nums;opacity:.7;line-height:1}
+.tile .z{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;opacity:.7;line-height:1}
 .tile .sym{font-family:var(--serif);font-size:19px;line-height:.9;letter-spacing:-.01em}
 .tile .pic{display:block;height:24px;width:28px;margin:-1px 0 0}
 .grid .tile .pic{height:30px;width:34px}
 @media (max-width:760px){.tile .pic{height:19px;width:22px}}
 #peek .pic{display:block;width:44px;height:38px;margin-bottom:2px}
-.tile .nm{font-size:7px;line-height:1.1;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .nm{font-size:7.5px;line-height:1.1;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tile .lk{position:absolute;top:3px;right:4px;font-size:7px;opacity:.75}
 .tile.spent{background:var(--paper2)!important;color:#8a8578;border-color:#c9c3b5;cursor:default}
 .tile.spent::after{content:"✓";position:absolute;right:4px;bottom:3px;font-size:11px;color:#7fa07a}
@@ -131,7 +131,7 @@ button.ghost{background:rgba(21,23,31,.9);border:1px solid var(--line);color:var
 .drip{animation:drip 1.1s ease-in forwards}
 @keyframes drip{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(60px)}}
 .bandlab{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;fill:#9a9789}
-@media (max-width:760px){:root{--tw:44px;--th:40px}#dial .rl{display:none}.tile .sym{font-size:15px}.tile .nm{display:none}.brand small,.foot{display:none}.toggle button{font-size:10px;padding:3px 7px}#stamps{display:none}}
+@media (max-width:760px){:root{--tw:44px;--th:40px}.tile .z{font-size:10px}#dial .rl{display:none}.tile .sym{font-size:15px}.tile .nm{display:none}.brand small,.foot{display:none}.toggle button{font-size:10px;padding:3px 7px}#stamps{display:none}}
 @media (prefers-reduced-motion:reduce){.tile,.drip,.tile.shake{animation:none;transition:none}}
 </style>
 

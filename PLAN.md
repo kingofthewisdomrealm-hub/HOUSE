@@ -225,6 +225,16 @@ Same data, same engine, same ring, same ten gates. **Only the middle of the scre
 
 Geometry the first render caught and the second fixed, worth remembering for Frame: roof planes and truss top chords tilt by **+s·pitch**, not −s·pitch; truss webs must be placed by **endpoints** (`strut(x, z1,y1, z2,y2)`), never by a guessed rotation; the stucco shell must sit *outside* the block's outer face (inset −0.475, not −0.14); and a soffit hangs **below** the truss tails, with a frieze board closing the eave — otherwise tails and hurricane straps poke through a "finished" house.
 
+### 8.1 Reverse (added 7 Sep, both levels)
+
+Josias: *"have a reverse button, it reverses the last step."* A **Reverse** button sits left of *Start over*; **Ctrl+Z / Cmd+Z** does the same. Press it repeatedly to walk the whole house back down to bare dirt.
+
+- Every action that **changes the house** pushes one snapshot (`placed`, `passed`, `burned`, `failedRows`, `leaks`, `fails`) onto a stack before it runs. Reverse pops and restores.
+- A **leak is not a step** — a refused drop changes nothing, so it never enters the stack and Reverse never "undoes" something invisible.
+- Reversing a **passed gate** un-stamps it. Reversing a **failed gate** un-burns the trap and puts the tile back on the house, with the fail count returned. The stamps panel is rebuilt from state, never patched.
+- The button disables itself when the stack is empty; *Start over* clears the stack.
+- **The cards still tell the truth.** Reversing a gate says so out loud: *"In the field a stamp is a stamp."* Reversing a part: *"On a real job that step is a demo crew and a change order."* The button is a training convenience, not a claim about the job.
+
 ## 9. Series
 
 1. **Block** — this plan. MVP built 7 Sep 2026.

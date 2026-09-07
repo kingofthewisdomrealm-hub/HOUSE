@@ -4,7 +4,10 @@ A series of **HTML apps** that show how a Treasure Coast house actually gets bui
 
 Live:
 
-- **Block** — [`apps/cbs/index.html`](apps/cbs/index.html) (`HOUSE Block`, crew edition) — concrete-block home on a slab.
+- **Block 3D** — [`apps/cbs3d/index.html`](apps/cbs3d/index.html) — the same house as a **real 3D model you can spin**. Drag to orbit, scroll to zoom; cutaway is a clipping plane through the middle of the building. three.js from a CDN, everything else self-contained. Falls back to a link to the flat version when WebGL will not start.
+- **Block** — [`apps/cbs/index.html`](apps/cbs/index.html) (`HOUSE Block`, crew edition) — the flat version: section + elevation, no dependencies, runs on anything.
+
+Both share one engine, one catalog and one set of gates. The only difference is what the middle of the screen draws.
 
 Training model, not a permit. Sister project: [ROOF](../ROOF/README.md) — the dry-in tile in this game is the whole ROOF Shingle game folded into one step.
 
@@ -19,7 +22,8 @@ Most "how a house is built" pictures are twelve cards in a row. A real CBS house
 | File | What's in it |
 |---|---|
 | [`index.html`](index.html) | Series hub |
-| [`apps/cbs/index.html`](apps/cbs/index.html) | **Live.** Ring → drag → cutaway / street / inspector → ten gates. One file, no dependencies. |
+| [`apps/cbs3d/index.html`](apps/cbs3d/index.html) | **Live.** The 3D model. Same ring, same ten gates; the house is ~1,370 meshes built from the catalog, one unit = one foot. |
+| [`apps/cbs/index.html`](apps/cbs/index.html) | **Live.** The flat version. Ring → drag → cutaway / street / inspector → ten gates. One file, no dependencies. |
 | [`PLAN.md`](PLAN.md) | Block build plan: what accurate means, the table grammar, the 40-tile catalog, the engine, open decisions |
 
 ## Sister projects (same DNA)

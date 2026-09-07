@@ -206,7 +206,26 @@ Facts on the cards, by source:
 
 ---
 
-## 8. Series
+## 8. The 3D level (`apps/cbs3d/`) — added 7 Sep 2026
+
+Josias: *"make it a 3d model"* → **real 3D you can spin**, **added alongside the flat one** (both live; the flat one is the fallback for a phone that will not run WebGL).
+
+Same data, same engine, same ring, same ten gates. **Only the middle of the screen changed.** The SVG section/elevation is replaced by a three.js scene (r134 UMD from cdnjs, the one external file; hand-rolled orbit, no OrbitControls dependency).
+
+- **One unit = one foot.** House 40 × 28, walls 8.5 ft of block, 1.5 ft tie beam, 4:12 gable, 2 ft overhangs. ~1,370 meshes.
+- **Every part still owns a `layer`**; the builder makes all layer groups once at load and `redraw()` only flips `.visible`. Adding a part is still a data row plus one builder line — never a code path.
+- **Cutaway is a real clipping plane** at z = 0: it slices the whole building in half, so you see the wall sandwich — block, furring, foil board, drywall — in section, which the flat version could only imply. Site objects (ground, driveway, condenser, meter, the inspectors) carry no clipping plane, so the yard stays whole.
+- **Street** turns clipping off. **Inspector** drops every layer the open gate does not check to 7 % opacity and puts a warm emissive on the ones it does.
+- **The inspectors are in the model**, standing where they checked, each under a gold numbered badge. The dry-in man stands on the shingles.
+- **Leaks are 3D**: the drop point is raycast onto a plane through the house and blue drops fall from it.
+- **Openings are real holes.** One `segs()` function splits a wall into the rectangles an opening leaves, and every shell — block, furring, insulation, drywall, stucco — is built from the same hole list at a different inset. That is why the section reads correctly at a window.
+- **Textures are drawn in a canvas at load** (block coursing, stucco, shingles, plywood, board, foil, sod, soil) and each mesh gets a texture repeat matched to its real size, so a 40-ft wall shows 30 blocks, not one stretched one.
+- **Wall-layer thicknesses are exaggerated** (furring, insulation and drywall read at ~1.5 in instead of ~0.5–0.75 in) so the sandwich is legible at building scale. Grade ◈ Model.
+- Falls back to a link to the flat version if `window.THREE` never arrives.
+
+Geometry the first render caught and the second fixed, worth remembering for Frame: roof planes and truss top chords tilt by **+s·pitch**, not −s·pitch; truss webs must be placed by **endpoints** (`strut(x, z1,y1, z2,y2)`), never by a guessed rotation; the stucco shell must sit *outside* the block's outer face (inset −0.475, not −0.14); and a soffit hangs **below** the truss tails, with a frieze board closing the eave — otherwise tails and hurricane straps poke through a "finished" house.
+
+## 9. Series
 
 1. **Block** — this plan. MVP built 7 Sep 2026.
 2. Frame — stick walls on the slab: sheathing, wrap, the nailing schedule, the strap-at-every-stud detail.
@@ -217,4 +236,4 @@ Later: manager mode replay; Spanish strings (all card text is data); email gate 
 
 ---
 
-*Plan written 2026-09-07. County facts from the Indian River County / City of Vero Beach residential inspection scheduling sheet and BRCOM Required Inspections checklist; code references FBC 8th Edition (2023). A training model, not a permit.*
+*Plan written 2026-09-07; 3D level added the same day. County facts from the Indian River County / City of Vero Beach residential inspection scheduling sheet and BRCOM Required Inspections checklist; code references FBC 8th Edition (2023). A training model, not a permit.*

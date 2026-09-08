@@ -250,6 +250,27 @@ Rules for anyone writing new tiles (Frame, Elevated, Addition):
 - **Every number survives the rewrite.** 6 in. o.c., two #5 continuous, 1/4 in. per foot, 7 ACH50, R405. Instruction voice is a change of grammar, not of content.
 - **Straight apostrophes are forbidden in card text** — the strings are single-quoted JavaScript. Use a curly ’. The rewrite script enforces this; so should you.
 
+### 8.3 The deck, the card faces, and Covenant branding (7 Sep)
+
+Josias: *"instead of the tiles surrounding the house, collapse them into a convenient place, like cards in a deck, and pull them out sequentially… make each card represent their step by how it looks… SAY how many cards there are and how many steps… have an option to see them all at once surrounding the house… make the number and the STEP big enough to see at first glance."* And: *"put covenant builders branding on the model."*
+
+**Two layouts, one engine.** `state.mode` is `deck` (default) or `ring`.
+
+- **Deck** — all 40 cards in one stack in the top-left, in `z` order, drawn one at a time. The top card is big (186×250) and is the drag source. `◀ ▶` (or the arrow keys) walk the deck; after every placement `deckSeek()` jumps to the lowest-`z` card that is actually ready. A stack of card edges sits behind it so it reads as a deck. The house gets the rest of the screen — roughly **2.4× the area** the ring left it.
+- **Ring** — the old layout, unchanged, one button away: *See all 40 around the house*. That button lives in the corner row, **not** in the deck panel, because the panel is hidden in ring mode.
+- **The count is stated, not implied:** `Card 9 of 40 · Step 3 of 10`, plus `21 left in the deck`, plus a row of **ten pips** — one per gate, grey / gold (open) / green (pass) / red (fail).
+
+**The card face** (same markup small on the ring and big in the deck, `cardFace(p, big)`):
+
+- the **`z` number** huge in the top-left (40px on the big card, 13px on a ring tile)
+- the **step** in the top-right — `Step 3` over `Tie beam`
+- **a picture of the step**, not a letter. `ART` is a table of ~30 inline-SVG glyphs keyed off **`p.layer`** — the field the 3D scene already uses — so a new tile still needs no code path, only a layer name and a glyph. Gate cards keep the numbered inspector, the permit keeps its stamped document.
+- the name, and the family question underneath.
+
+**Covenant Builders branding.** Lockup in the corner: the crown traced from `covenantbuilders.org/images/logo.png` as an SVG path (`M11,116 L2,55 L45,66 L73,3 L101,66 L145,55 L136,116 Z`, stroke 13, no fill), flanked by rules, over `COVENANT BUILDERS` / `WE DELIVER`. Brand tan sampled from the logo: **`#af9d80`**; wordmark **`#e9e9e9`**. The functional gold `#d4a24c` is deliberately kept for *state* (ready, open gate, action) so brand and signal do not fight. Footer carries CBC1253676, (772) 473-7115 and the service area. **And the model itself carries a job sign**: in the 3D level the permit tile now plants a Covenant yard sign — crown, wordmark, licence and phone drawn into a 640×400 CanvasTexture, text auto-fitted to the board, posts set behind the face.
+
+Traps worth remembering: an old phone media query hid `.tile .nm`, which silently blanked the *name* on the big deck card too; and the step **name** collides with the number at phone card size, so narrow shows `Step 4` alone.
+
 ## 9. Series
 
 1. **Block** — this plan. MVP built 7 Sep 2026.

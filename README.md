@@ -6,10 +6,11 @@ Live:
 
 - **Block 3D** — [`apps/cbs3d/index.html`](apps/cbs3d/index.html) — the same house as a **real 3D model you can spin**. Drag to orbit, scroll to zoom; cutaway is a clipping plane through the middle of the building. three.js from a CDN, everything else self-contained. Falls back to a link to the flat version when WebGL will not start.
 - **Block** — [`apps/cbs/index.html`](apps/cbs/index.html) (`HOUSE Block`, crew edition) — the flat version: section + elevation, no dependencies, runs on anything.
+- **Block · Advanced** — [`apps/adv/index.html`](apps/adv/index.html) — **the level that forks.** Same engine, but the deck now holds *decisions* as well as steps, and a decision rewrites the job: pick a stem wall and the county adds **102 Footing** and **137 Stem Wall**, the game becomes twelve gates, and every step after the fork renumbers itself. Eight traps — four of them only reachable on a road you chose. Scored in days and dollars.
 
 Both share one engine, one catalog and one set of gates. The only difference is what the middle of the screen draws.
 
-**Play them in order: Block, then Block · Advanced.** Block teaches the *order* of a house — one path, no forks, so a new hire never has to choose before he understands. Advanced (`PLAN.md` §10, not built) teaches the *judgement*: card 2 becomes monolithic-slab-or-stem-wall, and picking stem wall adds two county inspections and renumbers everything after it.
+**Play them in order: Block, then Block · Advanced.** Block teaches the *order* of a house — one path, no forks, so a new hire never has to choose before he understands. Advanced teaches the *judgement*: five decisions, and the first one — monolithic slab or stem wall — adds two county inspections and renumbers every step after it.
 
 Training model, not a permit. Sister project: [ROOF](../ROOF/README.md) — the dry-in tile in this game is the whole ROOF Shingle game folded into one step.
 
@@ -26,6 +27,7 @@ Most "how a house is built" pictures are twelve cards in a row. A real CBS house
 | [`index.html`](index.html) | Series hub |
 | [`apps/cbs3d/index.html`](apps/cbs3d/index.html) | **Live.** The 3D model. Same ring, same ten gates; the house is ~1,370 meshes built from the catalog, one unit = one foot. |
 | [`apps/cbs/index.html`](apps/cbs/index.html) | **Live.** The flat version. Ring → drag → cutaway / street / inspector → ten gates. One file, no dependencies. |
+| [`apps/adv/index.html`](apps/adv/index.html) | **Live.** Block · Advanced. Five choices, 42–52 cards, 10 or 12 gates depending on what you pick, 8 traps, a score in days and dollars. |
 | [`PLAN.md`](PLAN.md) | Block build plan: what accurate means, the table grammar, the 40-tile catalog, the engine, open decisions |
 
 ## Sister projects (same DNA)

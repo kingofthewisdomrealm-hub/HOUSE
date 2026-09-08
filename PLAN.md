@@ -283,7 +283,33 @@ Traps worth remembering: an old phone media query hid `.tile .nm`, which silentl
 
 ## 10. HOUSE Block · Advanced — the level that forks
 
-**Not built.** This is the spec. Everything the basic model refuses to fork on lives here, and the difference between the two levels is the whole point: **the basic model teaches the ORDER. Advanced teaches the JUDGEMENT.**
+**BUILT — 8 Sep 2026 — `apps/adv/index.html`.** Everything the basic model refuses to fork on lives here, and the difference between the two levels is the whole point: **the basic model teaches the ORDER. Advanced teaches the JUDGEMENT.**
+
+### What shipped
+
+| | Block | Block · Advanced |
+|---|---|---|
+| Decisions | none | **5** — foundation, roof covering, air handler, studs, insulation |
+| Gates | 10 | **10 or 12**, depending on the foundation |
+| Cards | 40 | **42–52**, depending on every choice |
+| Traps | 2 | **8** — 4 of them only exist on a road you chose |
+| Score | gates, leaks, failed gates | **+ days and dollars, including rework** |
+
+**How the fork is built — data, not code paths.** No row and no card carries a hard number any more. Each carries a `seq` (where it falls in the job) and an optional `only:['tag']`. Choosing an option switches its tag on; `rebuild()` filters both lists by the live tags, sorts by `seq`, and *then* hands out the numbers 1..N. So "pick a stem wall and every step after it renumbers" is not a feature anyone wrote — it is what happens when the numbers are given out after the filter instead of before it. `needs` gained one form, `'?choiceId'`, which means *this decision has to be made first* — that is what stops a man ordering trusses before he has decided what is going on top.
+
+**Measured, both roads played to a Certificate of Occupancy:**
+
+- Monolithic · shingle · closet air handler · wood studs · spray foam → 10 gates, 42 cards, **day 142, $377,700**, no rework.
+- Stem wall · tile · attic air handler · steel studs · foil board → 12 gates, 52 cards, **day 179, $469,400**.
+
+**The days and dollars are ◈ Model** — Treasure Coast ballparks for a 40×28 CBS house, in the file so the trade-offs have a size. They are not a bid. Replace them with Covenant's real numbers and the level becomes an estimating trainer as well as a sequencing one.
+
+### The one thing still open
+
+Advanced now *shows* what a stem wall costs. It does not yet say **when a Covenant lot gets one.** That rule is Josias's, not a book's — flood elevation, a lot that falls, a slab that has to sit above a road. Until he writes it, the foundation card presents both roads evenhandedly and lets the player find out the hard way.
+
+### The original spec follows
+
 
 A man who finishes Block knows what comes after what. He still does not know why this lot got a stem wall and that one did not. That is Advanced.
 

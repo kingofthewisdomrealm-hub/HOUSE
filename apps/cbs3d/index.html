@@ -136,7 +136,7 @@ button.ghost[disabled]{opacity:.32;cursor:not-allowed}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-1px;margin-right:4px;border:1px solid var(--hair)}
 
 /* ---------- Covenant Builders ---------- */
-:root{--brand:#af9d80; --wordmark:#e9e9e9}
+:root{--brand:#c4a574; --wordmark:#e9e7e2; --navy:#12182B}
 .lockup{display:flex;flex-direction:column;gap:3px;line-height:1}
 .lockup .row1{display:flex;align-items:center;gap:7px}
 .lockup .rule{height:1.5px;background:var(--brand);flex:1;min-width:26px;opacity:.85}
@@ -1155,22 +1155,22 @@ function buildAll(){
 				if(c.measureText(txt).width <= maxW || px < 8) break; px -= 1; }
 			c.fillStyle = colour; c.textAlign = 'center'; c.fillText(txt, W/2, y); c.letterSpacing = '0px';
 		};
-		c.fillStyle = '#11141a'; c.fillRect(0,0,W,H);
-		c.strokeStyle = '#af9d80'; c.lineWidth = 5; c.strokeRect(14,14,W-28,H-28);
+		c.fillStyle = '#12182B'; c.fillRect(0,0,W,H);
+		c.strokeStyle = '#c4a574'; c.lineWidth = 5; c.strokeRect(14,14,W-28,H-28);
 		c.save(); c.translate(W/2 - 27, 46); c.scale(.37,.37);         // the crown, traced from the logo
 		c.beginPath(); c.moveTo(11,116); c.lineTo(2,55); c.lineTo(45,66); c.lineTo(73,3);
 		c.lineTo(101,66); c.lineTo(145,55); c.lineTo(136,116); c.closePath();
-		c.lineWidth = 15; c.lineJoin = 'miter'; c.strokeStyle = '#af9d80'; c.stroke(); c.restore();
-		c.strokeStyle = '#af9d80'; c.lineWidth = 3;
+		c.lineWidth = 15; c.lineJoin = 'miter'; c.strokeStyle = '#c4a574'; c.stroke(); c.restore();
+		c.strokeStyle = '#c4a574'; c.lineWidth = 3;
 		c.beginPath(); c.moveTo(64,74); c.lineTo(W/2-46,74); c.moveTo(W/2+46,74); c.lineTo(W-64,74); c.stroke();
-		fit('COVENANT BUILDERS', 54, W-90, 186, '600 @px Iowan Old Style, Palatino, Georgia, serif', '#e9e9e9', 8);
-		fit('WE DELIVER', 26, W-190, 232, '500 @px Helvetica, Arial, sans-serif', '#af9d80', 13);
+		fit('COVENANT BUILDERS', 54, W-90, 186, '600 @px Iowan Old Style, Palatino, Georgia, serif', '#e9e7e2', 8);
+		fit('WE DELIVER', 26, W-190, 232, '500 @px Helvetica, Arial, sans-serif', '#c4a574', 13);
 		c.strokeStyle = 'rgba(175,157,128,.45)'; c.lineWidth = 2;
 		c.beginPath(); c.moveTo(W/2-120,268); c.lineTo(W/2+120,268); c.stroke();
 		fit('CBC1253676  ·  (772) 473-7115', 25, W-120, 312, '500 @px Helvetica, Arial, sans-serif', '#9b9284', 1);
 		fit('Vero Beach · Sebastian · Fort Pierce · Port St. Lucie', 19, W-90, 348, '400 @px Helvetica, Arial, sans-serif', '#6e6960', 1);
 		const face = new THREE.CanvasTexture(cv);
-		const blank = siteMat({color:'#0e1117'}), signm = siteMat({map:face});
+		const blank = siteMat({color:'#0d1220'}), signm = siteMat({map:face});
 		const SW = 9, SH = SW*H/W, YAW = -0.34;
 		const board = new THREE.Mesh(new THREE.BoxGeometry(SW,SH,.3), [blank,blank,blank,blank,signm,blank]);
 		board.position.set(-26, 7.4, 20); board.rotation.y = YAW; g.add(board);

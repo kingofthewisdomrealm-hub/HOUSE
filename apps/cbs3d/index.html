@@ -58,22 +58,32 @@ button.ghost[disabled]{opacity:.32;cursor:not-allowed}
 .stamp.pass,.stamp.fail{padding:2px 3px}
 .score{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 .score b{color:var(--ink);font-weight:600}
-.foot{font-size:9.5px;color:var(--faint);max-width:30ch;line-height:1.35}
+.foot{font-size:9px;color:var(--faint);max-width:33ch;line-height:1.32}
+#br{pointer-events:none}
+.foot a{pointer-events:auto}
 .foot a{color:var(--gold)}
 
 /* ---------- the ring of tiles ---------- */
-.tile{position:absolute;z-index:4;width:var(--tw);height:var(--th);margin:0;display:flex;flex-direction:column;justify-content:space-between;border-radius:6px;padding:3px 4px;border:1px solid var(--hair);color:var(--pink);text-align:left;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;transition:transform .15s,box-shadow .15s,opacity .2s;transform:translate(-50%,-50%)}
-.tile:hover{transform:translate(-50%,-50%) scale(1.06);box-shadow:0 8px 18px rgba(0,0,0,.5);z-index:6}
-.tile.ready{box-shadow:0 0 0 2px var(--gold),0 0 18px rgba(212,162,76,.45)}
-.tile.sel{box-shadow:0 0 0 2px #fff,0 8px 18px rgba(0,0,0,.5)}
-.tile .z{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;opacity:.7;line-height:1}
-.tile .sym{font-family:var(--serif);font-size:19px;line-height:.9;letter-spacing:-.01em}
-.tile .pic{display:block;height:24px;width:28px;margin:-1px 0 0}
-.grid .tile .pic{height:30px;width:34px}
-@media (max-width:760px){.tile .pic{height:19px;width:22px}}
-#peek .pic{display:block;width:44px;height:38px;margin-bottom:2px}
-.tile .nm{font-size:7.5px;line-height:1.1;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile .lk{position:absolute;top:3px;right:4px;font-size:7px;opacity:.75}
+/* ---------- the card face ---------- */
+.tile{position:absolute;z-index:4;width:var(--tw);height:var(--th);margin:0;display:flex;flex-direction:column;justify-content:space-between;border-radius:7px;padding:3px 5px 4px;border:1px solid var(--hair);color:var(--pink);text-align:left;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;transition:transform .15s,box-shadow .15s,opacity .2s;transform:translate(-50%,-50%);overflow:hidden}
+.tile .z{position:absolute;left:5px;top:2px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;opacity:.92}
+.tile .st{position:absolute;right:4px;top:3px;font-family:var(--mono);font-size:9px;font-weight:700;line-height:1;opacity:.62}
+.tile .pic{display:block;height:26px;width:34px;margin:14px auto 0}
+.tile .nm{font-size:7.5px;line-height:1.1;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.tile .lk{position:absolute;right:4px;bottom:3px;font-size:8px;opacity:.7}
+.tile .fm{display:none}
+/* the big one in the deck */
+.tile.big{position:absolute;inset:0;width:auto;height:auto;transform:none;border-radius:11px;padding:11px 13px 13px;cursor:grab;box-shadow:0 14px 34px rgba(0,0,0,.55)}
+.tile.big:hover{transform:translateY(-2px)}
+.tile.big.ready{box-shadow:0 0 0 3px var(--gold),0 14px 34px rgba(0,0,0,.55)}
+.tile.big .z{left:12px;top:7px;font-size:40px;font-weight:700;opacity:.95}
+.tile.big .st{right:11px;top:11px;text-align:right;font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;opacity:.72;font-weight:500}
+.tile.big .st b{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.02em;text-transform:none;margin-top:2px;opacity:.95}
+.tile.big .pic{height:78px;width:104px;margin:56px auto 0}
+.tile.big .nm{font-family:var(--serif);font-size:14.5px;line-height:1.25;white-space:normal;text-align:left;margin-top:10px;opacity:1}
+.tile.big .fm{display:block;font-size:8.5px;line-height:1.3;opacity:.62;margin-top:4px}
+.tile.big .lk{right:11px;bottom:9px;font-size:12px}
+.tile.big.spent::after,.tile.big.burned::after{right:11px;bottom:8px;font-size:18px}
 .tile.spent{background:var(--paper2)!important;color:#8a8578;border-color:#c9c3b5;cursor:default}
 .tile.spent::after{content:"✓";position:absolute;right:4px;bottom:3px;font-size:11px;color:#7fa07a}
 .tile.covered{opacity:.4;cursor:not-allowed}
@@ -125,6 +135,59 @@ button.ghost[disabled]{opacity:.32;cursor:not-allowed}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 4px 0;font-size:9.5px;color:#6d6b62}
 .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-1px;margin-right:4px;border:1px solid var(--hair)}
 
+/* ---------- Covenant Builders ---------- */
+:root{--brand:#af9d80; --wordmark:#e9e9e9}
+.lockup{display:flex;flex-direction:column;gap:3px;line-height:1}
+.lockup .row1{display:flex;align-items:center;gap:7px}
+.lockup .rule{height:1.5px;background:var(--brand);flex:1;min-width:26px;opacity:.85}
+.lockup svg{display:block;width:15px;height:13px;flex:none}
+.lockup .wm{font-family:var(--serif);font-size:12.5px;letter-spacing:.20em;color:var(--wordmark);text-transform:uppercase;white-space:nowrap}
+.lockup .wd{font-family:var(--sans);font-size:7.5px;letter-spacing:.34em;color:var(--brand);text-transform:uppercase;text-align:center}
+.appname{font-family:var(--serif);font-size:16px;line-height:1;margin-top:7px;color:var(--ink)}
+.appname em{color:var(--gold);font-style:italic}
+.appname small{display:block;font-family:var(--mono);font-size:8px;letter-spacing:.17em;text-transform:uppercase;color:var(--faint);margin-top:4px}
+.foot b{color:var(--brand);font-weight:600}
+
+/* ---------- the deck ---------- */
+#deck{position:absolute;z-index:5;width:246px;display:flex;flex-direction:column;align-items:center;gap:9px;
+	background:rgba(10,12,18,.72);border:1px solid var(--line);border-radius:16px;padding:14px 13px 13px}
+#deck.ready{border-color:rgba(212,162,76,.55)}
+#dside{display:flex;flex-direction:column;align-items:center;gap:8px}
+#dwrap{position:relative;width:186px;height:250px}
+#dwrap .edge{position:absolute;inset:0;border-radius:11px;background:var(--paper2);border:1px solid var(--hair);opacity:.5}
+#dwrap .edge:nth-child(1){transform:translate(9px,9px) rotate(2.6deg)}
+#dwrap .edge:nth-child(2){transform:translate(5px,5px) rotate(1.3deg)}
+#dcard{position:absolute;inset:0}
+#dcard .ddone{display:flex;align-items:center;justify-content:center;height:100%;border:1px dashed var(--line);border-radius:11px;color:var(--dim);font-size:12px;text-align:center;padding:16px}
+.dnav{display:flex;align-items:center;gap:9px}
+.dnav button{width:30px;height:26px;padding:0;font-size:12px}
+#dcount{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+#dcount b{color:var(--ink);font-size:12.5px}
+#dleft{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+#dpips{display:flex;gap:4px}
+#dpips i{width:13px;height:5px;border-radius:99px;background:#2a2f3d}
+#dpips i.pass{background:var(--sage)}#dpips i.fail{background:var(--rust)}#dpips i.open{background:var(--gold)}
+#dall{font-size:10.5px}
+@media (max-width:760px){
+	#deck{flex-direction:row;align-items:center;gap:12px;width:auto;padding:10px 12px}
+	#dwrap{width:132px;height:176px}
+	#dside{align-items:flex-start;gap:7px}
+	#dcount{white-space:normal;line-height:1.5}
+	#dleft{display:none}
+	.tile.big{padding:8px 9px 9px}
+	.tile.big .z{font-size:27px;left:9px;top:5px}
+	.tile.big .st{font-size:7px;right:8px;top:7px}
+	.tile.big .st{max-width:58px}
+	.tile.big .st b{display:none}
+	.tile.big .pic{height:48px;width:66px;margin:34px auto 0}
+	.tile.big .nm{font-size:11px;margin-top:7px}
+	.tile.big .fm{display:none}
+	#bl{top:124px;bottom:auto}
+	#msg{max-width:34ch;font-size:11.5px}
+}
+#stage.deckmode .tile:not(.big){display:none}
+#stage.deckmode #dial{display:none}
+
 /* ---------- done ---------- */
 #done{display:none;position:fixed;inset:0;z-index:45;background:rgba(7,8,12,.88);align-items:center;justify-content:center;text-align:center;padding:24px}
 #done.on{display:flex}
@@ -135,17 +198,21 @@ button.ghost[disabled]{opacity:.32;cursor:not-allowed}
 .drip{animation:drip 1.1s ease-in forwards}
 @keyframes drip{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(60px)}}
 .bandlab{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;fill:#9a9789}
-@media (max-width:760px){:root{--tw:44px;--th:40px}.tile .z{font-size:10px}#dial .rl{display:none}.tile .sym{font-size:15px}.tile .nm{display:none}.brand small,.foot{display:none}.toggle button{font-size:10px;padding:3px 7px}#stamps{display:none}}
+@media (max-width:760px){:root{--tw:44px;--th:40px}.tile .z{font-size:10px}#dial .rl{display:none}.tile.big .nm{display:block}.tile .sym{font-size:15px}.tile .nm{display:none}.brand small,.foot{display:none}.toggle button{font-size:10px;padding:3px 7px}#stamps{display:none}}
 @media (prefers-reduced-motion:reduce){.tile,.drip,.tile.shake{animation:none;transition:none}}
 </style>
 
 <div id="stage" aria-label="The 3D house, with every part around it">
 	<svg id="dial" aria-hidden="true"></svg>
 	<div id="housebox"></div>
-	<p id="msg">Drag a part onto the house. <b>Drag the house to spin it, scroll to zoom.</b> Gold ring = ready now &#183; Reverse takes the last step back.</p>
+	<p id="msg"><b>40 cards, 10 steps.</b> Drag the top card onto the house. Drag the house to spin it, scroll to zoom.</p>
 
 	<div class="corner" id="tl">
-		<div class="brand">HOUSE <em>Block 3D</em><small>Treasure Coast CBS home · crew edition</small></div>
+		<div class="lockup" aria-label="Covenant Builders">
+			<div class="row1"><span class="rule"></span><svg viewBox="0 0 147 121" aria-hidden="true"><path d="M11,116 L2,55 L45,66 L73,3 L101,66 L145,55 L136,116 Z" fill="none" stroke="var(--brand)" stroke-width="13" stroke-linejoin="miter"/></svg><span class="rule"></span></div>
+			<div class="wm">Covenant Builders</div><div class="wd">We Deliver</div>
+		</div>
+		<div class="appname">HOUSE <em>Block 3D</em><small>Treasure Coast CBS home · crew edition</small></div>
 		<div class="toggle" role="tablist" aria-label="View">
 			<button data-view="cutaway" class="on">Cutaway</button>
 			<button data-view="street">Street</button>
@@ -155,9 +222,18 @@ button.ghost[disabled]{opacity:.32;cursor:not-allowed}
 	<div class="corner" id="tr"><div id="stamps"></div></div>
 	<div class="corner" id="bl">
 		<span class="score" id="score">Gates 0/10 · Leaks 0 · Failed gates 0</span>
-		<div style="display:flex;gap:6px"><button class="ghost" id="undo" disabled title="Take the last step back (Ctrl+Z)">&#8630; Reverse</button><button class="ghost" id="reset">Start over</button><button class="ghost" id="showchart">The table</button></div>
+		<div style="display:flex;gap:6px;flex-wrap:wrap;max-width:60vw"><button class="ghost" id="undo" disabled title="Take the last step back (Ctrl+Z)">&#8630; Reverse</button><button class="ghost" id="dall"></button><button class="ghost" id="reset">Start over</button><button class="ghost" id="showchart">The table</button></div>
 	</div>
-	<div class="corner" id="br"><span class="foot">Gates in the order of the Indian River County / Vero Beach <a href="https://indianriver.gov/Document%20Center/Services/Planning-and-Development/Building%20Division/2019_BRCOM_Scheduling.pdf" target="_blank" rel="noopener">residential inspection schedule</a> and FBC 8th Ed. A training model, not a permit.</span></div>
+	<div class="corner" id="br"><span class="foot"><b>Covenant Builders</b> · CBC1253676 · (772) 473-7115<br>Vero Beach · Sebastian · Fort Pierce · Port St. Lucie · Fellsmere · Hablamos español<br>Gates in the order of the Indian River County / Vero Beach <a href="https://indianriver.gov/Document%20Center/Services/Planning-and-Development/Building%20Division/2019_BRCOM_Scheduling.pdf" target="_blank" rel="noopener">residential inspection schedule</a> and FBC 8th Ed. A training model, not a permit.</span></div>
+</div>
+
+<div id="deck" aria-label="The deck of build cards">
+	<div id="dwrap"><div class="edge"></div><div class="edge"></div><div id="dcard"></div></div>
+	<div id="dside">
+		<div class="dnav"><button class="ghost" id="dprev" aria-label="Previous card">&#9664;</button><span id="dcount"></span><button class="ghost" id="dnext" aria-label="Next card">&#9654;</button></div>
+		<div id="dpips" aria-label="The ten steps"></div>
+		<div id="dleft"></div>
+	</div>
 </div>
 
 <div id="peek" role="dialog" aria-label="Part card"><button class="close" id="peekclose" aria-label="Close">×</button><div id="peekbody"></div></div>
@@ -435,7 +511,7 @@ const NG = ROWS.length;
 /* ============================================================
    STATE
    ============================================================ */
-const state = {placed:new Set(), leaks:0, fails:0, passed:new Set(), burned:new Set(), failedRows:new Set(), view:'cutaway', sel:null};
+const state = {placed:new Set(), leaks:0, fails:0, passed:new Set(), burned:new Set(), failedRows:new Set(), view:'cutaway', sel:null, mode:'deck'};
 const stage = document.getElementById('stage');
 const SORTED = PARTS.slice().sort((a,b)=>a.z-b.z || (a.trap?1:0)-(b.trap?1:0));
 const ORDER = SORTED.filter(p=>p.fam!=='pp');        // the ring: what goes on the house
@@ -478,78 +554,198 @@ function permitSVG(ink){
 		<circle cx="21" cy="24" r="3.2" fill="none" stroke="#b3382a" stroke-width="1.6"/>
 	</svg>`;
 }
-function symMarkup(p, ink){
-	if(p.icon==='inspector') return `<span class="pic">${inspectorSVG(p.row, ink)}</span>`;
-	if(p.icon==='permit') return `<span class="pic">${permitSVG(ink)}</span>`;
-	return `<span class="sym">${p.sym}</span>`;
+/* ---------- the picture on the face of every card: keyed off p.layer, still data ---------- */
+const ART = {
+	footing:(k)=>`<path d="M5 40h54"/><path d="M13 40v-9h38v9"/><path d="M20 8v22"/><path d="M20 8l11 4-11 4z" fill="${k}" stroke="none"/><path d="M36 22h18"/>`,
+	upipe:(k)=>`<path d="M4 15h56"/><path d="M13 32h38"/><path d="M21 32V15M43 32V15"/><rect x="17" y="8" width="8" height="5" fill="${k}" stroke="none"/><rect x="39" y="8" width="8" height="5" fill="${k}" stroke="none"/>`,
+	poly:(k)=>`<circle cx="14" cy="21" r="8"/><path d="M14 29h44"/><path d="M6 41h52" stroke-dasharray="3 4"/>`,
+	slabsteel:(k)=>`<path d="M8 19h48M8 30h48M20 11v27M32 11v27M44 11v27"/><path d="M13 41l4-6 4 6M43 41l4-6 4 6"/>`,
+	slab:(k)=>`<rect x="6" y="25" width="52" height="13"/><path d="M18 19h28M32 19v-7"/>`,
+	block:(k)=>`<rect x="5" y="26" width="25" height="12"/><rect x="34" y="26" width="25" height="12"/><rect x="19" y="11" width="25" height="12"/>`,
+	beam:(k)=>`<rect x="5" y="22" width="54" height="16"/><circle cx="17" cy="27" r="2" fill="${k}"/><circle cx="29" cy="27" r="2" fill="${k}"/><circle cx="17" cy="33" r="2" fill="${k}"/><circle cx="29" cy="33" r="2" fill="${k}"/><path d="M47 22V9"/>`,
+	beampour:(k)=>`<rect x="5" y="22" width="54" height="16" fill="${k}" opacity=".2"/><rect x="5" y="22" width="54" height="16"/><path d="M16 38v7M32 38v7M48 38v7"/>`,
+	trusses:(k)=>`<path d="M4 39h56L32 10Z"/><path d="M32 10v29M18 39l9-16M46 39l-9-16"/>`,
+	straps:(k)=>`<rect x="8" y="20" width="48" height="11"/><path d="M22 42V14h9v28"/><circle cx="26.5" cy="23" r="1.8" fill="${k}"/><circle cx="26.5" cy="29" r="1.8" fill="${k}"/>`,
+	toenail:(k)=>`<rect x="9" y="15" width="46" height="10"/><path d="M6 39h52"/><path d="M20 38l7-11M31 38l7-11M42 38l7-11"/>`,
+	sheath:(k)=>`<rect x="7" y="11" width="50" height="27"/><path d="M7 24.5h50"/><circle cx="17" cy="17" r="1.7" fill="${k}"/><circle cx="32" cy="17" r="1.7" fill="${k}"/><circle cx="47" cy="17" r="1.7" fill="${k}"/><circle cx="17" cy="32" r="1.7" fill="${k}"/><circle cx="32" cy="32" r="1.7" fill="${k}"/><circle cx="47" cy="32" r="1.7" fill="${k}"/>`,
+	dryin:(k)=>`<path d="M4 39L32 13l28 26"/><circle cx="44" cy="26" r="6"/><path d="M44 20v12"/>`,
+	shingles:(k)=>`<path d="M6 15h52M6 26h52M6 37h52"/><path d="M19 15v11M35 15v11M51 15v11M27 26v11M43 26v11"/>`,
+	partition:(k)=>`<path d="M6 11h52M6 38h52"/><path d="M15 11v27M26 11v27M37 11v27M48 11v27"/>`,
+	windows:(k)=>`<rect x="10" y="9" width="44" height="31"/><path d="M32 9v31M10 24.5h44"/>`,
+	topout:(k)=>`<path d="M14 41V18h30"/><path d="M14 18V7"/><path d="M29 41V26"/><path d="M8 7h12"/><path d="M44 18v10"/>`,
+	wire:(k)=>`<rect x="35" y="13" width="16" height="21"/><circle cx="43" cy="20" r="1.9" fill="${k}"/><circle cx="43" cy="28" r="1.9" fill="${k}"/><path d="M35 23H14v18"/>`,
+	duct:(k)=>`<path d="M7 17h50" stroke-width="8"/><path d="M7 32h50"/>`,
+	ductbare:(k)=>`<path d="M7 17h50"/><path d="M7 32h50"/>`,
+	furring:(k)=>`<path d="M13 7v34M25 7v34M37 7v34M49 7v34"/><path d="M13 24h36" stroke-width="5"/>`,
+	wallins:(k)=>`<rect x="9" y="9" width="46" height="30"/><path d="M9 17q11.5 6 23 0t23 0M9 25q11.5 6 23 0t23 0M9 33q11.5 6 23 0t23 0"/>`,
+	drywall:(k)=>`<rect x="7" y="9" width="50" height="30"/><circle cx="18" cy="17" r="1.6" fill="${k}"/><circle cx="32" cy="17" r="1.6" fill="${k}"/><circle cx="46" cy="17" r="1.6" fill="${k}"/><circle cx="18" cy="31" r="1.6" fill="${k}"/><circle cx="32" cy="31" r="1.6" fill="${k}"/><circle cx="46" cy="31" r="1.6" fill="${k}"/>`,
+	attic:(k)=>`<path d="M5 35q7-11 14 0t14 0 14 0 8 0"/><path d="M50 35V17M45 21h10"/>`,
+	fixtures:(k)=>`<rect x="22" y="9" width="14" height="10"/><path d="M18 19h22a11 11 0 0 1-22 0z"/><path d="M25 30v9h8v-9"/><rect x="46" y="14" width="10" height="22" rx="4"/>`,
+	panel:(k)=>`<rect x="15" y="7" width="34" height="34"/><path d="M32 7v34"/><path d="M19 14h9M19 22h9M19 30h9M36 14h9M36 22h9M36 30h9"/>`,
+	cond:(k)=>`<rect x="10" y="11" width="44" height="29"/><circle cx="32" cy="25" r="9"/><path d="M32 16v18M23 25h18"/>`,
+	finish:(k)=>`<rect x="13" y="8" width="30" height="10"/><path d="M28 18v6M28 24h-9v17"/><path d="M40 41h16" stroke-width="4"/>`,
+	grade:(k)=>`<path d="M6 19h20l32 15"/><path d="M6 19v15h20"/><path d="M40 41h18" stroke-width="4"/>`,
+};
+function artSVG(p, ink){
+	if(p.icon==='inspector') return inspectorSVG(p.row, ink);
+	if(p.icon==='permit') return permitSVG(ink);
+	const g = ART[p.layer];
+	return `<svg viewBox="0 0 64 48" width="100%" height="100%" aria-hidden="true" fill="none" stroke="${ink}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${g?g(ink):'<circle cx="32" cy="24" r="12"/>'}</svg>`;
 }
-function tileNode(p, ring){
+
+/* ---------- the face of a card, small on the ring or big in the deck ---------- */
+function cardFace(p, big){
+	const f = famById[p.fam], r = ROWS[p.row-1], ink = '#161410';
+	const art = `<span class="pic">${artSVG(p, ink)}</span>`;
+	const lk = p.link ? '<span class="lk" title="Opens ROOF Shingle">↗</span>' : '';
+	if(big) return `<span class="z">${p.z}</span><span class="st">Step ${p.row}<b>${r.label}</b></span>${art}`
+		+ `<span class="nm">${p.name}</span><span class="fm">${f.label} · ${f.q}</span>${lk}`;
+	return `<span class="z">${p.z}</span><span class="st">${p.row}</span>${art}<span class="nm">${p.short}</span>${lk}`;
+}
+function tileNode(p, live, big){
 	const f = famById[p.fam];
-	const b = el('button','tile'); b.type='button'; b.dataset.id = p.id;
+	const b = el('button', 'tile' + (big?' big':'')); b.type='button'; b.dataset.id = p.id;
 	b.style.background = fill(f.hue,f.hueTo);
-	b.setAttribute('aria-label', `${p.name}. ${f.label}, ${ROWS[p.row-1].label}.`);
-	b.innerHTML = `<span class="z">${p.z}</span>${symMarkup(p,'#161410')}<span class="nm">${p.short}</span>${p.link?'<span class="lk" title="Opens ROOF Shingle">↗</span>':''}`;
-	if(ring){
+	b.setAttribute('aria-label', `Card ${p.z}. ${p.name}. ${f.label}, step ${p.row} ${ROWS[p.row-1].label}.`);
+	b.innerHTML = cardFace(p, big);
+	if(live){
 		b.addEventListener('pointerdown', startDrag);
-		b.addEventListener('pointerenter', e=>{ if(!drag && window.matchMedia('(hover:hover)').matches) openPeek(p.id, {}); });
+		b.addEventListener('pointerenter', e=>{ if(!drag && !big && window.matchMedia('(hover:hover)').matches) openPeek(p.id, {}); });
 		b.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); attempt(p.id); } });
 	}
 	return b;
 }
-function buildRing(){
-	stage.querySelectorAll('.tile').forEach(t=>t.remove());
-	SORTED.forEach(p=>stage.appendChild(tileNode(p,true)));
-	layout();
+
+/* ============================================================
+   THE DECK — 40 cards in one stack, drawn in order.
+   The ring is still here, one button away.
+   ============================================================ */
+let deckIdx = 0;
+const deckBox = document.getElementById('deck');
+function deckAvail(){ return SORTED.filter(p=>!state.placed.has(p.id) && !state.burned.has(p.id) && !coveredBy(p)); }
+function deckGo(d){ const a=deckAvail(); if(!a.length) return; deckIdx=(deckIdx+d+a.length)%a.length; renderDeck(); refreshTiles(); }
+function deckSeek(){ const a=deckAvail(); const i=a.findIndex(ready); deckIdx = i>=0 ? i : 0; }
+function renderDeck(){
+	if(state.mode!=='deck') return;
+	const a = deckAvail();
+	const host = document.getElementById('dcard');
+	if(!a.length){ host.innerHTML='<div class="ddone">Every card is played.</div>'; document.getElementById('dcount').textContent=''; document.getElementById('dpips').innerHTML=''; return; }
+	deckIdx = ((deckIdx % a.length) + a.length) % a.length;
+	const p = a[deckIdx];
+	host.innerHTML=''; host.appendChild(tileNode(p, true, true));
+	document.getElementById('dcount').innerHTML =
+		`Card <b>${p.z}</b> of <b>${SORTED.length}</b> &nbsp;·&nbsp; Step <b>${p.row}</b> of <b>${ROWS.length}</b>`;
+	document.getElementById('dleft').textContent = a.length + ' left in the deck';
+	document.getElementById('dpips').innerHTML = ROWS.map(r=>{
+		const k = state.passed.has(r.n) ? 'pass' : state.failedRows.has(r.n) ? 'fail' : (openRow()===r.n ? 'open' : '');
+		return `<i class="${k}" title="Step ${r.n} — ${r.label}"></i>`;
+	}).join('');
+	deckBox.classList.toggle('ready', ready(p));
 }
+function setMode(m){
+	state.mode = m;
+	document.getElementById('dall').textContent = m==='deck'
+		? (innerWidth < 760 ? `See all ${SORTED.length}` : `See all ${SORTED.length} around the house`)
+		: 'Back to the deck';
+	stage.classList.toggle('deckmode', m==='deck');
+	if(m==='deck') deckSeek();
+	layout(); refreshTiles();
+	say('', m==='deck'
+		? `<b>The deck.</b> ${SORTED.length} cards, ${ROWS.length} steps. Drag the top card onto the house, or use the arrows to look through the deck.`
+		: `<b>All ${SORTED.length} cards.</b> The ring is the whole job at once, clockwise from the top. Gold ring = you can play it now.`);
+}
+
+function buildRing(){
+	stage.querySelectorAll('.tile:not(.big)').forEach(t=>t.remove());
+	SORTED.forEach(p=>stage.appendChild(tileNode(p,true,false)));
+	document.getElementById('dprev').addEventListener('click', ()=>deckGo(-1));
+	document.getElementById('dnext').addEventListener('click', ()=>deckGo(1));
+	document.getElementById('dall').addEventListener('click', ()=>setMode(state.mode==='deck'?'ring':'deck'));
+	window.addEventListener('keydown', e=>{
+		if(state.mode!=='deck' || e.metaKey || e.ctrlKey) return;
+		if(e.key==='ArrowLeft'){ e.preventDefault(); deckGo(-1); }
+		if(e.key==='ArrowRight'){ e.preventDefault(); deckGo(1); }
+	});
+	setMode('deck');
+}
+
 function layout(){
 	const W = stage.clientWidth, H = stage.clientHeight;
+	deckBox.style.display = state.mode==='deck' ? '' : 'none';
+	document.getElementById('dial').style.display = state.mode==='deck' ? 'none' : '';
+	if(state.mode==='deck') layoutDeck(W,H); else layoutRing(W,H);
+}
+function fitBox(x0,y0,x1,y1){                       // biggest 800:560 box in that rectangle
+	const k = 800/560, w = x1-x0, h = y1-y0;
+	let bw = Math.min(w, h*k), bh = bw/k;
+	return [x0 + (w-bw)/2, y0 + (h-bh)/2, bw, bh];
+}
+function layoutDeck(W,H){
+	const narrow = W < 760;
+	let x0,y0,x1,y1;
+	if(narrow){
+		deckBox.style.left='50%'; deckBox.style.transform='translateX(-50%)';
+		deckBox.style.bottom='10px'; deckBox.style.top='auto';
+		x0 = 10; x1 = W-10; y0 = 190; y1 = H - (deckBox.offsetHeight||196) - 74;
+	} else {
+		const dw = deckBox.offsetWidth || 246;
+		deckBox.style.left='16px'; deckBox.style.transform='none';
+		const dh = deckBox.offsetHeight || 380;
+		deckBox.style.top = Math.max(80, Math.min(152, H - dh - 96)) + 'px'; deckBox.style.bottom='auto';
+		x0 = dw + 34; x1 = W - 18; y0 = 84; y1 = H - 104;
+	}
+	const [bx,by,bw,bh] = fitBox(x0,y0,x1,y1);
+	const box = document.getElementById('housebox');
+	box.style.left=bx+'px'; box.style.top=by+'px'; box.style.width=bw+'px'; box.style.height=bh+'px';
+	const msg = document.getElementById('msg');
+	msg.style.left = (bx + bw/2) + 'px'; msg.style.top = (by + bh + 4) + 'px';
+	geo.tw = 60; geo.th = 52;
+}
+function layoutRing(W,H){
 	const tw = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tw'));
 	const th = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--th'));
 	const cx = W/2, cy = H/2;
 	const rx = W/2 - tw/2 - 12, ry = H/2 - th/2 - 12;
-	const stagger = 1;
-	geo = {cx,cy,rx,ry,tw,th,stagger};
+	geo = {cx,cy,rx,ry,tw,th,stagger:1};
 	spaceRing(rx, ry);
 	ORDER.forEach((p,i)=>{
-		const t = stage.querySelector(`.tile[data-id="${p.id}"]`); if(!t) return;
+		const t = stage.querySelector(`.tile[data-id="${p.id}"]:not(.big)`); if(!t) return;
 		const a = ANG(i);
 		t.style.left = (cx + rx*Math.cos(a))+'px'; t.style.top = (cy + ry*Math.sin(a))+'px';
 	});
-	// house box: largest 800:560 rectangle inside the inner ellipse, minus the paper shelf above it
 	const irx = rx - tw/2 - 18, iry0 = ry - th/2 - 18 - 14;
 	const k = 800/560;
 	const fit = (iry)=>{ const b = 1/Math.sqrt((k/irx)**2 + (1/iry)**2); return [k*b, b]; };
-	// pass 1: one shelf row; measure the width the ring leaves free at shelf height; pass 2: real row count
 	let rows = 1, a, b;
 	for(let pass=0; pass<2; pass++){
 		[a,b] = fit(iry0 - rows*(th+10)/2);
 		const top = cy - b + rows*(th+10)/2 - 10;
 		const shelfY = top - th/2 - 8 - (rows-1)*(th+6);
-		const v = Math.min(0.98, Math.abs(shelfY - cy)/(ry*stagger));
-		const avail = 2*(rx*stagger*Math.sqrt(1-v*v) - tw/2 - 10);
-		const perRow = Math.max(3, Math.floor(avail/(tw+4)));
-		rows = Math.ceil(PAPER.length/perRow);
+		const v = Math.min(0.98, Math.abs(shelfY - cy)/ry);
+		const avail = 2*(rx*Math.sqrt(1-v*v) - tw/2 - 10);
+		rows = Math.ceil(PAPER.length / Math.max(3, Math.floor(avail/(tw+4))));
 	}
 	const box = document.getElementById('housebox');
 	box.style.width = (2*a)+'px'; box.style.height = (2*b)+'px';
 	const top = cy - b + rows*(th+10)/2 - 10;
 	box.style.left = (cx-a)+'px'; box.style.top = top+'px';
-	// the paper shelf: permit and inspections in rows just above the house, in inspection order
 	const perRow = Math.ceil(PAPER.length/rows);
 	for(let r=0; r<rows; r++){
 		const items = PAPER.slice(r*perRow, (r+1)*perRow);
 		const gap = Math.min(12, Math.max(4, (2*a - items.length*tw)/(items.length+1)));
 		items.forEach((p,i)=>{
-			const t = stage.querySelector(`.tile[data-id="${p.id}"]`); if(!t) return;
+			const t = stage.querySelector(`.tile[data-id="${p.id}"]:not(.big)`); if(!t) return;
 			t.style.left = (cx + (i-(items.length-1)/2)*(tw+gap))+'px';
 			t.style.top = (top - th/2 - 8 - (rows-1-r)*(th+6))+'px';
 		});
 	}
-	const msg = document.getElementById('msg'); msg.style.top = (top + 2*b - 6)+'px';
+	const msg = document.getElementById('msg');
+	msg.style.left = '50%'; msg.style.top = (top + 2*b - 6)+'px';
 	drawDial();
 }
 function drawDial(){
 	const d = document.getElementById('dial'); d.innerHTML='';
+	if(state.mode!=='ring') return;
 	const {cx,cy,rx,ry} = geo;
 	const pt = a => [cx+rx*Math.cos(a), cy+ry*Math.sin(a)];
 	ROWS.forEach(r=>{
@@ -561,7 +757,7 @@ function drawDial(){
 		const large = (a1-a0) > Math.PI ? 1 : 0;
 		const status = state.passed.has(r.n) ? 'pass' : state.failedRows.has(r.n) ? 'fail' : (openRow()===r.n ? 'open' : '');
 		d.appendChild(mk('path',{d:`M${x0},${y0} A${rx},${ry} 0 ${large} 1 ${x1},${y1}`, class:'arc '+status}));
-		const am = (a0+a1)/2; const lx = cx + (rx*geo.stagger-geo.tw/2-12)*Math.cos(am), ly = cy + (ry*geo.stagger-geo.th/2-12)*Math.sin(am);
+		const am = (a0+a1)/2; const lx = cx + (rx-geo.tw/2-12)*Math.cos(am), ly = cy + (ry-geo.th/2-12)*Math.sin(am);
 		const t = mk('text',{x:lx, y:ly, class:'rl '+status, 'text-anchor': Math.cos(am)>0.3?'end':Math.cos(am)<-0.3?'start':'middle', 'dominant-baseline':'middle'});
 		t.textContent = `${r.n} · ${r.label}`; d.appendChild(t);
 	});
@@ -569,7 +765,7 @@ function drawDial(){
 function openRow(){ const g = PARTS.find(p=>p.gate && !state.placed.has(p.id)); return g ? g.row : 0; }
 function refreshTiles(){
 	document.querySelectorAll('.tile').forEach(t=>{
-		const p = byId[t.dataset.id];
+		const p = byId[t.dataset.id]; if(!p) return;
 		t.classList.toggle('spent', state.placed.has(p.id));
 		t.classList.toggle('burned', state.burned.has(p.id));
 		t.classList.toggle('covered', !state.placed.has(p.id) && !!coveredBy(p));
@@ -577,6 +773,7 @@ function refreshTiles(){
 		t.classList.toggle('sel', state.sel===p.id);
 	});
 	const u = document.getElementById('undo'); if(u) u.disabled = past.length === 0;
+	renderDeck();
 	drawDial();
 }
 window.addEventListener('resize', layout);
@@ -646,7 +843,7 @@ function reverse(){
 	restore(e.s);
 	document.getElementById('done').classList.remove('on');
 	closePeek(); state.sel = null;
-	rebuildStamps(); redraw(); refreshTiles(); score();
+	rebuildStamps(); deckSeek(); redraw(); refreshTiles(); score();
 	if(p.gate) say('', failed
 		? `<b>Reversed.</b> The <b>${ROWS[p.row-1].label}</b> inspection is un-called and the tile is back. On a real job you do not get this button.`
 		: `<b>Reversed.</b> The <b>${ROWS[p.row-1].label}</b> inspection is un-called. In the field a stamp is a stamp.`);
@@ -688,10 +885,10 @@ function attempt(id, e){
 		say('', `<b>${p.short}</b> is on. ${p.law}`);
 		closePeek();
 	}
-	state.sel=null; redraw(); refreshTiles(); score();
+	state.sel=null; deckSeek(); redraw(); refreshTiles(); score();
 }
 function say(kind, html){ const m = document.getElementById('msg'); m.className = kind; m.innerHTML = html; }
-function shakeTile(id){ const t = stage.querySelector(`.tile[data-id="${id}"]`); if(!t) return; t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
+function shakeTile(id){ const t = document.querySelector(`.tile.big[data-id="${id}"]`) || stage.querySelector(`.tile[data-id="${id}"]`); if(!t) return; t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
 function stampGate(p, kind){
 	const s = document.getElementById('stamps');
 	let d = s.querySelector(`[data-row="${p.row}"]`);
@@ -711,8 +908,8 @@ function finish(){
 }
 function resetAll(){
 	state.placed.clear(); state.passed.clear(); state.burned.clear(); state.failedRows.clear(); state.leaks=0; state.fails=0; state.sel=null; past.length=0;
-	document.getElementById('stamps').innerHTML=''; document.getElementById('done').classList.remove('on'); closePeek();
-	say('', 'Drag a part onto the house. <b>Drag the house to spin it, scroll to zoom.</b> Gold ring = ready now &#183; Reverse takes the last step back.');
+	document.getElementById('stamps').innerHTML=''; document.getElementById('done').classList.remove('on'); closePeek(); deckIdx=0;
+	say('', '<b>40 cards, 10 steps.</b> Drag the top card onto the house. Drag the house to spin it, scroll to zoom.');
 	redraw(); refreshTiles(); score();
 }
 document.getElementById('reset').addEventListener('click', resetAll);
@@ -749,7 +946,9 @@ function openPeek(id, o){
 		${can ? `<button class="eat" id="peekgo">${p.gate?'Call the inspection':'Put it on the house'}</button>` : ''}`;
 	const go = document.getElementById('peekgo'); if(go) go.addEventListener('click', ()=>attempt(id));
 	peek.classList.add('on');
-	const t = stage.querySelector(`.tile[data-id="${id}"]`); const tr = t.getBoundingClientRect();
+	const t = document.querySelector(`.tile.big[data-id="${id}"]`) || stage.querySelector(`.tile[data-id="${id}"]`);
+	if(!t){ peek.style.left='50%'; peek.style.top='90px'; return; }
+	const tr = t.getBoundingClientRect();
 	const pw = peek.offsetWidth, ph = peek.offsetHeight;
 	const tcx = tr.left + tr.width/2, tcy = tr.top + tr.height/2;
 	const W = window.innerWidth, H = window.innerHeight;
@@ -837,7 +1036,7 @@ function segs(a, b, y0, y1, holes){
 let renderer, scene, camera, root, clip, raf = null, dirty = true;
 const LG = {}, MATS = {};
 let CUR = null;
-const cam = {az:0.34, el:0.26, r:70, tx:0, ty:6.6, tz:0, anim:null};
+const cam = {az:0.34, el:0.26, r:60, tx:0, ty:6.4, tz:0, anim:null};
 const holder = document.getElementById('housebox');
 
 function mat(o){
@@ -946,15 +1145,41 @@ function buildAll(){
 	MATS.site.forEach(m=>m.userData.site = true);
 	CUR = null;
 
-	build('permit', g=>{
-		cylY(.14,7,-26,3.5,20, mat({color:'#8a7c72'}), g);
-		const s = box(5,4,.25,-26,8,20, mat({color:'#f6f2e8'}), g);
-		box(3.4,.3,.3,-26,9,20.2, mat({color:'#b3382a'}), g);
-		box(3.4,.25,.3,-26,8.2,20.2, mat({color:'#a09a8c'}), g);
-		box(2.2,.25,.3,-26.6,7.5,20.2, mat({color:'#a09a8c'}), g);
-		MATS.permit.forEach(m=>m.userData.site=true);
+	build('permit', g=>{                                     // the job sign goes up with the permit
+		const W = 640, H = 400;
+		const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+		const c = cv.getContext('2d');
+		const fit = (txt, size, maxW, y, font, colour, track)=>{      // shrink until it fits the board
+			let px = size;
+			for(;;){ c.font = font.replace('@', px); c.letterSpacing = track + 'px';
+				if(c.measureText(txt).width <= maxW || px < 8) break; px -= 1; }
+			c.fillStyle = colour; c.textAlign = 'center'; c.fillText(txt, W/2, y); c.letterSpacing = '0px';
+		};
+		c.fillStyle = '#11141a'; c.fillRect(0,0,W,H);
+		c.strokeStyle = '#af9d80'; c.lineWidth = 5; c.strokeRect(14,14,W-28,H-28);
+		c.save(); c.translate(W/2 - 27, 46); c.scale(.37,.37);         // the crown, traced from the logo
+		c.beginPath(); c.moveTo(11,116); c.lineTo(2,55); c.lineTo(45,66); c.lineTo(73,3);
+		c.lineTo(101,66); c.lineTo(145,55); c.lineTo(136,116); c.closePath();
+		c.lineWidth = 15; c.lineJoin = 'miter'; c.strokeStyle = '#af9d80'; c.stroke(); c.restore();
+		c.strokeStyle = '#af9d80'; c.lineWidth = 3;
+		c.beginPath(); c.moveTo(64,74); c.lineTo(W/2-46,74); c.moveTo(W/2+46,74); c.lineTo(W-64,74); c.stroke();
+		fit('COVENANT BUILDERS', 54, W-90, 186, '600 @px Iowan Old Style, Palatino, Georgia, serif', '#e9e9e9', 8);
+		fit('WE DELIVER', 26, W-190, 232, '500 @px Helvetica, Arial, sans-serif', '#af9d80', 13);
+		c.strokeStyle = 'rgba(175,157,128,.45)'; c.lineWidth = 2;
+		c.beginPath(); c.moveTo(W/2-120,268); c.lineTo(W/2+120,268); c.stroke();
+		fit('CBC1253676  ·  (772) 473-7115', 25, W-120, 312, '500 @px Helvetica, Arial, sans-serif', '#9b9284', 1);
+		fit('Vero Beach · Sebastian · Fort Pierce · Port St. Lucie', 19, W-90, 348, '400 @px Helvetica, Arial, sans-serif', '#6e6960', 1);
+		const face = new THREE.CanvasTexture(cv);
+		const blank = siteMat({color:'#0e1117'}), signm = siteMat({map:face});
+		const SW = 9, SH = SW*H/W, YAW = -0.34;
+		const board = new THREE.Mesh(new THREE.BoxGeometry(SW,SH,.3), [blank,blank,blank,blank,signm,blank]);
+		board.position.set(-26, 7.4, 20); board.rotation.y = YAW; g.add(board);
+		const ax = Math.cos(YAW), az = -Math.sin(YAW);                 // the board's own x axis
+		const bx = Math.sin(YAW), bz = Math.cos(YAW);                  // and its facing
+		const post = siteMat({color:'#6f6a62'});
+		[-3.3, 3.3].forEach(o=>cylY(.2, 11, -26 + ax*o - bx*0.5, 5.5, 20 + az*o - bz*0.5, post, g));
+		MATS.permit.forEach(m=>m.userData.site = true);
 	});
-
 	build('footing', g=>{
 		const trench = mat({color:'#241c15'}), form = mat({color:'#8b6b4d'}), steel = mat({color:'#8a3b2a'});
 		// the trench + thickened edge, dug around the pad
@@ -1311,7 +1536,7 @@ function applyView(){
 document.querySelectorAll('.toggle button').forEach(b=>b.addEventListener('click', ()=>{
 	document.querySelectorAll('.toggle button').forEach(x=>x.classList.toggle('on', x===b));
 	state.view = b.dataset.view; applyView();
-	const p = {cutaway:[0.34,0.26,70], street:[0.95,0.18,78], inspector:[cam.az,cam.el,cam.r]}[state.view];
+	const p = {cutaway:[0.34,0.26,60], street:[0.95,0.18,68], inspector:[cam.az,cam.el,cam.r]}[state.view];
 	flyTo(p[0], p[1], p[2]);
 	say('', state.view==='street' ? '<b>From the street.</b> Walk around it. Stucco, windows, a roof — a toe-nailed roof and a bare line set look exactly like this too.'
 		: state.view==='inspector' ? '<b>Inspector view.</b> Only what the open gate checks is lit. If he cannot see it, he cannot pass it.'

@@ -9,6 +9,8 @@ Live:
 
 Both share one engine, one catalog and one set of gates. The only difference is what the middle of the screen draws.
 
+**Play them in order: Block, then Block · Advanced.** Block teaches the *order* of a house — one path, no forks, so a new hire never has to choose before he understands. Advanced (`PLAN.md` §10, not built) teaches the *judgement*: card 2 becomes monolithic-slab-or-stem-wall, and picking stem wall adds two county inspections and renumbers everything after it.
+
 Training model, not a permit. Sister project: [ROOF](../ROOF/README.md) — the dry-in tile in this game is the whole ROOF Shingle game folded into one step.
 
 ---

@@ -195,14 +195,24 @@ Facts on the cards, by source:
 
 ---
 
-## 7. Open decisions (Josias)
+## 7. Decided: the basic model stays simple
 
-1. **Monolithic slab or stem wall?** The county has separate Footing (102) and Stem Wall (137) inspections. The MVP draws a monolithic thickened edge and folds the footing into the slab gate (◈). If Covenant builds stem walls, row 1 gets a *Stem wall* tile and an eleventh gate — a data row and one more shelf tile.
-2. **Where is the air handler?** Drawn in the attic. Garage or closet changes the picture, not the engine.
-3. **Wall insulation system.** Drawn as foil board between PT furring on the block. Spray foam or furring-less systems are one tile swap.
-4. **Partitions: wood or metal studs?** Drawn as wood. The framing card says PT bottom plate — metal track changes that line.
-5. **Third trap for V1.1:** *vent stack terminated in the attic* (fails top-out — "vertical vents through roof per code"), or *no chairs under the mesh* (fails slab). Both are data rows.
-6. **The ROOF link.** The two roof tiles link to `../../../ROOF/apps/shingle/index.html` — works when HOUSE and ROOF sit side by side in the same folder (they do, in COVENANT CLAUDE). On GitHub Pages as separate repos, change `ROOF_URL` to the ROOF Pages address. One constant.
+**7 Sep, Josias: "these things should go on an advanced model."** Right. The six open questions were all *"which way does Covenant do it"* — and the answer for the beginner level is **don't ask, don't fork, teach one clean path.** A man learning the order of a house should not be choosing between two foundations on card 2.
+
+So the basic Block model is **closed**, and it teaches one house:
+
+| Question | The basic model teaches | Grade |
+|---|---|---|
+| Foundation | **Monolithic** — footing and slab in one pour, thickened edge | ◈ Model — one of two real ways |
+| Air handler | **Attic** | ◈ Model |
+| Wall insulation | **Foil board between PT furring** on the block | ◈ Model |
+| Interior studs | **Wood**, PT bottom plate on the slab | ◈ Model |
+| Traps | **Two** — toe-nailed trusses, bare suction line | — |
+| ROOF link | **Closed.** Relative path works because the repos are named `ROOF` and `HOUSE`; verified live | ✓ |
+
+Those five cards carry a **◈ Model** grade now instead of a **~ confirm** — an honest change. *~ confirm* meant "go find the number." *◈ Model* means "this is one real way, simplified on purpose; the other ways are in Advanced." Nothing pretends to be the only way, and nothing sends a new hire off to read plans he does not have yet.
+
+**Everything that was a fork moves to §10.**
 
 ---
 
@@ -271,12 +281,53 @@ Josias: *"instead of the tiles surrounding the house, collapse them into a conve
 
 Traps worth remembering: an old phone media query hid `.tile .nm`, which silently blanked the *name* on the big deck card too; and the step **name** collides with the number at phone card size, so narrow shows `Step 4` alone.
 
+## 10. HOUSE Block · Advanced — the level that forks
+
+**Not built.** This is the spec. Everything the basic model refuses to fork on lives here, and the difference between the two levels is the whole point: **the basic model teaches the ORDER. Advanced teaches the JUDGEMENT.**
+
+A man who finishes Block knows what comes after what. He still does not know why this lot got a stem wall and that one did not. That is Advanced.
+
+### What Advanced adds
+
+**1. The foundation fork — the headline.** Card 2 becomes a choice, not an instruction. Two cards sit side by side and the man picks:
+
+- **Monolithic** — footing and slab in one pour. Flat, dry, well-drained lot. Stays at ten gates.
+- **Stem wall** — pour the footing, lay block on it to get up out of the dirt, fill and compact inside, then pour the slab on top. For a lot with fall to it, or one that has to come up to grade. **The county inspects this as two more steps: 102 Footing and 137 Stem Wall.** Picking it grows the game to **twelve gates**, and every step after renumbers.
+
+That renumbering is the lesson. A man watches the whole inspection schedule change because of one decision made on day one — which is exactly what happens on a real job, and exactly what nobody tells him.
+
+Each card carries the **lot conditions** that make it the right answer, so the choice is judged, not guessed. The game does not fail you for picking either one; it fails you for picking one and then building the other one's sequence.
+
+**2. Variant cards, not fixed ones.** Air handler (attic / garage / closet), wall insulation (foil board between furring / spray foam / furring-less), interior studs (wood / metal track). Each is a small fork with its own downstream consequence — the metal-track card kills the pressure-treated-plate instruction, the garage air handler moves the line set and the drain, spray foam changes what gate 8 is looking at.
+
+**3. More traps, and meaner ones.** Basic has two. Advanced should carry six-plus, including the two candidates already written:
+
+- **A vent stack that dead-ends in the attic** — fails top-out. County checklist: *vertical vents through roof per code*.
+- **Mesh laid flat on the poly with no chairs** — fails the slab. Steel on the ground does nothing.
+
+And the trap that only Advanced can hold: **the right work in the wrong sequence.** Not a bad part — a good part, placed in an order that makes a later inspection impossible.
+
+**4. A scored run.** Basic counts leaks and failed gates. Advanced should count **days and dollars**: a failed inspection is a re-inspection fee and a crew standing around, and the score should say so in money, because that is the number a superintendent actually feels.
+
+### What Advanced must NOT do
+
+- It must not be the first thing a new hire opens. The hub orders them: **Block → Block 3D → Advanced.**
+- It must not replace the basic model. Two levels, one engine, same catalog underneath.
+- It must not turn a fork into a trap. Picking stem wall is not wrong. Picking stem wall and then calling the slab inspection before the stem wall inspection is wrong.
+
+### What it needs from Josias before it can be built
+
+Only one thing, and it is not a code question: **when does a Covenant lot get a stem wall instead of a monolithic slab?** One or two sentences of his own rule — fall across the lot, fill depth, flood elevation, whatever he actually uses to decide — goes on the fork card as the judgement being taught. Everything else in §10 can be built from the code and the county schedule.
+
+---
+
 ## 9. Series
 
-1. **Block** — this plan. MVP built 7 Sep 2026.
-2. Frame — stick walls on the slab: sheathing, wrap, the nailing schedule, the strap-at-every-stud detail.
-3. Elevated — stem wall and pilings; the flood-zone house; the FEMA elevation certificate as a Paper tile.
-4. Addition — tying new to old: the dowel, the beam, the roof that has to meet. The remodel funnel.
+1. **Block** — this plan. Built 7 Sep 2026: flat + 3D, deck layout, Covenant branded.
+2. **Block · Advanced** — §10. The forks, the variants, the meaner traps, a score in days and dollars.
+3. Frame — stick walls on the slab: sheathing, wrap, the nailing schedule, the strap-at-every-stud detail.
+4. Elevated — stem wall and pilings; the flood-zone house; the FEMA elevation certificate as a Paper tile.
+5. Addition — tying new to old: the dowel, the beam, the roof that has to meet. The remodel funnel.
 
 Later: manager mode replay; Spanish strings (all card text is data); email gate → CRM lead; a *superintendent* mode where the ring is scrambled and you sort it.
 

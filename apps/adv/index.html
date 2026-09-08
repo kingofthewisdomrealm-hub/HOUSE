@@ -865,8 +865,8 @@ function setMode(m){
 	if(m==='deck') deckSeek();
 	layout(); refreshTiles();
 	say('', m==='deck'
-		? `<b>The deck.</b> ${SORTED.length} cards, ${ROWS.length} steps. Drag the top card onto the house, or use the arrows to look through the deck.`
-		: `<b>All ${SORTED.length} cards.</b> The ring is the whole job at once, clockwise from the top. Gold ring = you can play it now.`);
+		? `<b>The deck.</b> ${PARTS.length} cards and <b>${CHOICES.length - Object.keys(PICK).length} decisions</b>, ${ROWS.length} steps so far. Drag the top card onto the house — but a decision is not dragged, it is chosen, and it changes what comes after it.`
+		: `<b>All ${SORTED.length}.</b> The whole job at once, clockwise from the top. Gold ring = you can play it now. The tan cards are decisions, not steps.`);
 }
 
 /* The ring is a picture of the catalog, and on this level the catalog changes

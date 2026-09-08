@@ -235,6 +235,21 @@ Josias: *"have a reverse button, it reverses the last step."* A **Reverse** butt
 - The button disables itself when the stack is empty; *Start over* clears the stack.
 - **The cards still tell the truth.** Reversing a gate says so out loud: *"In the field a stamp is a stamp."* Reversing a part: *"On a real job that step is a demo crew and a change order."* The button is a training convenience, not a claim about the job.
 
+### 8.2 The cards speak in the imperative (7 Sep)
+
+Josias: *"word them as instructions, instead of events… Pull the permit — this is the first thing you do, you go to the building dept, you get…"*
+
+All 40 cards rewritten. The **Spec** block is now headed **What you do** and every one of them is second person, present tense, marching orders: *"You call the surveyor and he sets your corners. You fill and compact the pad in lifts, and you send the density report to the county."* Gate cards are instructions too — *"You call in a 503 — Slab, and you call it before you order concrete"* — so the act of calling the inspection reads as the step it is.
+
+**Fails when** stayed a warning, but moved to second person as well: *"Order the truck for 7 and the inspector for 9 and you pay standing time while everybody watches."*
+
+Rules for anyone writing new tiles (Frame, Elevated, Addition):
+
+- **Law** stays an aphorism — it is the thing you repeat on the ladder, not an instruction.
+- **What you do** starts with a verb aimed at the reader. No noun-phrase inventories ("Beam forms set on top of the wall"), no passive voice. Say who does it: *you* set it, *he* checks it, *the surveyor* sets the corners.
+- **Every number survives the rewrite.** 6 in. o.c., two #5 continuous, 1/4 in. per foot, 7 ACH50, R405. Instruction voice is a change of grammar, not of content.
+- **Straight apostrophes are forbidden in card text** — the strings are single-quoted JavaScript. Use a curly ’. The rewrite script enforces this; so should you.
+
 ## 9. Series
 
 1. **Block** — this plan. MVP built 7 Sep 2026.
